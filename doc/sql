@@ -1,0 +1,137 @@
+CREATE TABLE `users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `open_id` varchar(50) NOT NULL DEFAULT '' COMMENT '用户openId',
+  `user_no` varchar(100) not null comment '用户no',
+  `name` varchar(200) NOT NULL COMMENT '用户名称',
+  `head_url` varchar(500) NOT NULL DEFAULT '' COMMENT '用户头像',
+  `sex` char(1) NOT NULL DEFAULT '' COMMENT '用户性别 w 女 m 男 x 未知',
+  `mobile` varchar(20) NOT NULL DEFAULT '' COMMENT '用户手机号',
+  `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+  `updated_at` timestamp NULL DEFAULT NULL COMMENT '修改时间',
+  `status` int NOT NULL DEFAULT '0' COMMENT '用户状态',
+  `deleted_at` timestamp NULL DEFAULT NULL COMMENT '删除',
+  `role` int DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_users_created_at` (`created_at`),
+  KEY `idx_users_updated_at` (`updated_at`),
+  KEY `idx_mobile` (`mobile`),
+  KEY `idx_users_open_id` (`open_id`),
+  KEY `idx_users_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户信息';
+
+CREATE TABLE `room_info`
+(
+    `id`         int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `name`       varchar(100)     NOT NULL DEFAULT '' COMMENT '房间名字',
+    `is_private` int(1)           NOT NULL default 0 COMMENT '是否公开 0 公开 1加密',
+    `password`   varchar(10)      NOT NULL DEFAULT '' COMMENT '密码',
+    `creator`    int(10)          NOT NULL COMMENT '创建用户',
+    `room_no`    varchar(100)      NOT NULL COMMENT '房间唯一标识',
+    `icon`    varchar(100)      NOT NULL COMMENT '图标',
+    `is_chorus`  int(1)           NOT NULL default 0 COMMENT '是否合唱 0 不合唱 1合唱',
+    `bg_option`  varchar(200)           NOT NULL default '' COMMENT '背景',
+    `sound_effect`  varchar(200)           NOT NULL default '' COMMENT '音效',
+    `bel_canto`  varchar(200)           NOT NULL default '' COMMENT '美声',
+    `created_at` timestamp        NULL     DEFAULT NULL COMMENT '创建时间',
+    `updated_at` timestamp        NULL     DEFAULT NULL COMMENT '修改时间',
+    `status`     int(1)           NOT NULL DEFAULT 0 COMMENT '房间状态 0 正常 1关闭 2异常',
+    `deleted_at` timestamp        NULL     DEFAULT null COMMENT '删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_room_created_at` (`created_at`),
+    KEY `idx_room_updated_at` (`updated_at`),
+    KEY `idx_room_creator` (`creator`),
+    KEY `idx_room_room_no` (`room_no`),
+    KEY `idx_room_name` (`name`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4 COMMENT ='房间信息';
+
+CREATE TABLE `room_song`
+(
+    `id`          int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `room_no`     varchar(100)      NOT NULL COMMENT '房间唯一标识',
+    `song_no`     varchar(100)     NOT NULL COMMENT '歌曲',
+    `sort`        int(5)           NOT NULL COMMENT '排序',
+     `user_no` varchar(100) not null comment '用户no',
+     `chorus_no` varchar(100) not null comment '合唱者',
+    `is_original` int(1)           NOT NULL default 0 COMMENT '是否是原唱 0 不是 1 原唱',
+    `is_chorus`  int(1)           NOT NULL default 0 COMMENT '是否合唱 0 不合唱 1合唱',
+    `is_switch`   varchar(100)     NOT NULL default '0' COMMENT '是否切歌了 0 没切 1切了',
+    `score`       int(3)           null COMMENT '得分',
+    `created_at`  timestamp        NULL     DEFAULT NULL COMMENT '创建时间',
+    `updated_at`  timestamp        NULL     DEFAULT NULL COMMENT '修改时间',
+    `status`      int(1)           NOT NULL DEFAULT 0 COMMENT '1已唱 0 未唱',
+    `deleted_at`  timestamp        NULL     DEFAULT null COMMENT '删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_room_song_created_at` (`created_at`),
+    KEY `idx_room_song_updated_at` (`updated_at`),
+    KEY `idx_room_song_room_no` (`room_no`),
+    KEY `idx_room_song_song_no` (`song_no`),
+    KEY `idx_room_song_user_no` (`user_no`),
+    KEY `idx_room_song_chorus_no` (`chorus_no`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4 COMMENT ='房间歌曲';
+
+
+CREATE TABLE `room_song_users`
+(
+    `id`           int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `room_no`      varchar(100)      NOT NULL COMMENT '房间唯一标识',
+    `room_song_id` int(10)          NOT NULL COMMENT '歌曲id',
+    `user_id`      int(10)          NOT NULL COMMENT '用户id',
+    `score`        int(3)           NOT NULL default 0 COMMENT '得分',
+    `created_at`   timestamp        NULL     DEFAULT NULL COMMENT '创建时间',
+    `updated_at`   timestamp        NULL     DEFAULT NULL COMMENT '修改时间',
+    `status`       int(1)           NOT NULL DEFAULT 0 COMMENT '1已唱 0 未唱',
+    `deleted_at`   timestamp        NULL     DEFAULT null COMMENT '删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_room_song_created_at` (`created_at`),
+    KEY `idx_room_song_updated_at` (`updated_at`),
+    KEY `idx_room_song_room_no` (`room_no`),
+    KEY `idx_room_song_user_id` (`user_id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4 COMMENT ='房间歌曲演唱者';
+
+CREATE TABLE `songs`
+(
+    `id`          int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `song_no`     varchar(100)     NOT NULL COMMENT '歌曲',
+    `song_name`     varchar(100)     NOT NULL COMMENT '歌曲名称',
+    `song_url`     varchar(500)     NOT NULL COMMENT '歌曲',
+    `image_url`     varchar(500)     NOT NULL COMMENT '歌曲图片',
+    `singer`     varchar(100)     NOT NULL COMMENT '作者',
+    `type`     varchar(10)     NOT NULL COMMENT '分类',
+    `lyric`     varchar(500)     NOT NULL COMMENT '歌词',
+    `created_at`  timestamp        NULL     DEFAULT NULL COMMENT '创建时间',
+    `updated_at`  timestamp        NULL     DEFAULT NULL COMMENT '修改时间',
+    `status`      int(1)           NOT NULL DEFAULT 0 COMMENT '1已唱 0 未唱',
+    `deleted_at`  timestamp        NULL     DEFAULT null COMMENT '删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_songs_created_at` (`created_at`),
+    KEY `idx_songs_updated_at` (`updated_at`),
+    KEY `idx_songs_song_no` (`song_no`),
+    KEY `idx_songs_song_name` (`song_name`),
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4 COMMENT ='歌曲信息';
+
+CREATE TABLE `room_users` (
+    `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `room_no` varchar(100) NOT NULL COMMENT '房间唯一标识',
+    `user_id` int NOT NULL COMMENT '用户id',
+    `on_seat` int NOT NULL COMMENT '是否上麦 0 未上 1-8 在麦上的位置',
+    `join_sing` int NOT NULL default  0 COMMENT '是否合唱 0 不合唱 1合唱',
+    `is_video_muted` int NOT NULL default 0 COMMENT '是否合唱 0 不合唱 1合唱',
+    `is_self_muted` int NOT NULL COMMENT '是否合唱 0 不合唱 1合唱',
+    `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+    `updated_at` timestamp NULL DEFAULT NULL COMMENT '修改时间',
+    `status` int NOT NULL DEFAULT '0',
+    `deleted_at` timestamp NULL DEFAULT NULL COMMENT '删除',
+    PRIMARY KEY (`id`),
+    KEY `idx_room_users_created_at` (`created_at`),
+    KEY `idx_room_users_updated_at` (`updated_at`),
+    KEY `idx_room_users_user_id` (`user_id`),
+    KEY `idx_room_users_room_no` (`room_no`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='房间用户';

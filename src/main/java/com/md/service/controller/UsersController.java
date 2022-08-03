@@ -1,0 +1,84 @@
+package com.md.service.controller;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.md.service.model.BaseResult;
+import com.md.service.model.dto.RoomPageDTO;
+import com.md.service.model.dto.UserInfo;
+import com.md.service.model.entity.Users;
+import com.md.service.model.form.UpdateUserInfoForm;
+import com.md.service.service.UsersService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import javax.annotation.Resource;
+
+/**
+ * <p>
+ * 用户信息 前端控制器
+ * </p>
+ */
+@RestController
+@RequestMapping("/users")
+@Slf4j
+@Api(tags = "用户管理")
+@EnableSwagger2
+public class UsersController extends BaseController{
+
+    @Resource
+    private UsersService usersService;
+
+    @GetMapping("/verificationCode")
+    @ApiOperation("发送验证码")
+    public BaseResult<String> verificationCode(String phone){
+        log.info("verificationCode form : {}",phone);
+        BaseResult<String> result = usersService.verificationCode(phone);
+        log.info("verificationCode result :{}",result);
+        return result;
+    }
+
+    @GetMapping("/login")
+    @ApiOperation("登陆")
+    public BaseResult<UserInfo> login(String phone, String code){
+        log.info("login form : {}",phone);
+        BaseResult<UserInfo> result = usersService.login(phone,code);
+        log.info("login result :{}",result);
+        return result;
+    }
+
+    @PostMapping("/update")
+    @ApiOperation("修改用户信息")
+    public BaseResult<UserInfo> update(@RequestBody UpdateUserInfoForm form){
+        log.info("update form : {}",form);
+        BaseResult<UserInfo> result = usersService.updateInfo(form);
+        log.info("update result :{}",result);
+        return result;
+    }
+
+    @GetMapping("/cancellation")
+    @ApiOperation("注销用户")
+    public BaseResult<?> cancellation(String userNo){
+        BaseResult<?> result = usersService.cancellation(userNo);
+        log.info("cancellation result :{}",result);
+        return result;
+    }
+
+    @GetMapping("/getUserInfo")
+    @ApiOperation("获取用户信息")
+    public BaseResult<?> getUserInfo(String userNo){
+        BaseResult<?> result = usersService.getUserInfo(userNo);
+        log.info("getUserInfo result :{}",result);
+        return result;
+    }
+
+    @PostMapping("/userList")
+    @ApiOperation("用户列表")
+    public BaseResult<IPage<Users>> roomList(@RequestBody Page form){
+        log.info("roomList form : {}",form);
+        return BaseResult.success(usersService.userList(form));
+    }
+
+}
