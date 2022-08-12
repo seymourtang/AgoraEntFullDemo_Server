@@ -36,13 +36,9 @@ public class UploadFileController {
         String prefix = fileName.substring(fileName.lastIndexOf("."));
         String name = System.currentTimeMillis() + MdStringUtils.randomDelete("random",5) + prefix;
         String url = "";
-        try {
-            url = uploadFile.uploadFile(file,name);
-            JSONObject obj = new JSONObject();
-            obj.set("url",url);
-            return BaseResult.success(obj);
-        } catch (Exception e) {
-            throw new BaseException(ErrorCodeEnum.upload_failed);
-        }
+        url = uploadFile.uploadFile(file,name);
+        JSONObject obj = new JSONObject();
+        obj.set("url",url);
+        return BaseResult.success(obj);
     }
 }

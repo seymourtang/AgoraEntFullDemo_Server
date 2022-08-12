@@ -10,6 +10,7 @@ import com.md.service.model.entity.Users;
 import com.md.service.repository.RoomUsersMapper;
 import com.md.service.service.RoomUsersService;
 import com.md.service.service.UsersService;
+import com.md.service.utils.AgoraentertainmentUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -26,6 +27,9 @@ public class RoomUsersServiceImpl extends ServiceImpl<RoomUsersMapper, RoomUsers
 
     @Resource
     private UsersService usersService;
+
+    @Resource
+    private AgoraentertainmentUtils agoraentertainmentUtils;
 
     @Override
     public void joinRoom(String roomNo, Integer userId, Integer seat, Integer joinSing) {
@@ -139,11 +143,17 @@ public class RoomUsersServiceImpl extends ServiceImpl<RoomUsersMapper, RoomUsers
 
     @Override
     public void isVideoMuted(String roomNo, String userNo) {
+        agoraentertainmentUtils.openRecording(12312,"131231asdf");
         Users users = usersService.getUserByNo(userNo);
         RoomUsers roomUsers = baseMapper.selectOne(new LambdaQueryWrapper<RoomUsers>().eq(RoomUsers::getRoomNo,roomNo).
                 eq(RoomUsers::getUserId,users.getId()).last("limit 1"));
         if(roomUsers.getIsVideoMuted() == 0){
             roomUsers.setIsVideoMuted(1);
+            try {
+                agoraentertainmentUtils.openRecording(users.getId(),roomNo);
+            }catch (Exception e){
+                log.error("openRecording error",e);
+            }
         }else{
             roomUsers.setIsVideoMuted(0);
         }

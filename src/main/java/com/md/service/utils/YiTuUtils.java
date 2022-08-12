@@ -79,20 +79,23 @@ public class YiTuUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        HttpEntity<?> httpEntity = new HttpEntity<>(body.toString().replaceAll("\\\\",""), getJsonHeaderTwo());
+        log.info("yitu:{}", httpEntity);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
+        log.info("responseEntity : {}",responseEntity.getBody());
+        String ret;
         try {
-            HttpEntity<?> httpEntity = new HttpEntity<>(body.toString().replaceAll("\\\\",""), getJsonHeaderTwo());
-            log.info("yitu:{}", httpEntity);
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
-            log.info("responseEntity : {}",responseEntity.getBody());
-            String ret;
             ret = new String(responseEntity.getBody().getBytes("ISO-8859-1"),"utf-8");
-            JSONObject result = JSON.parseObject(ret);
-            if(!result.getJSONArray("tasks").getJSONObject(0).getString("result").equals("pass")){
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        JSONObject result = JSON.parseObject(ret);
+        if(result.getJSONArray("tasks").getJSONObject(0).getString("result").equals("block")){
+            if(result.getJSONArray("tasks").getJSONObject(0).getJSONArray("detail").getJSONObject(0).getString("scene").equals("politics")){
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_contains_politically_sensitive_content);
+            }else{
                 throw new BaseException(ErrorCodeEnum.please_dont_upload_cmpurity_content);
             }
-        } catch (Exception e) {
-            log.error("error",e);
-            throw new BaseException(ErrorCodeEnum.upload_failed);
         }
         return null ;
     }

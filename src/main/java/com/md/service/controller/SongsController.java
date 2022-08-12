@@ -7,7 +7,7 @@ import com.md.service.model.BaseResult;
 import com.md.service.model.dto.GetListPageDTO;
 import com.md.service.model.entity.Songs;
 import com.md.service.service.SongsService;
-import com.md.service.utils.GetSongs;
+import com.md.service.utils.AgoraentertainmentUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class SongsController {
     private SongsService songsService;
 
     @Resource
-    private GetSongs getSongs;
+    private AgoraentertainmentUtils getSongs;
 
     @GetMapping("/getList")
     @ApiOperation("查询歌曲")

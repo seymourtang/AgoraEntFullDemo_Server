@@ -30,6 +30,12 @@ public interface RoomInfoService extends IService<RoomInfo> {
     void closeRoom(String roomNo,String userNo);
 
     /**
+     * 强行关闭房间
+     * @param roomNo
+     */
+    void closeRoom(String roomNo);
+
+    /**
      * 上麦
      * @param roomNo
      * @param userNo
@@ -76,4 +82,9 @@ public interface RoomInfoService extends IService<RoomInfo> {
      * @return
      */
     JSONObject getRoomNum(String roomNo);
+
+    /**
+     * 查询需要关闭的房间
+     */
+    void searchRoomAndClose();
 }

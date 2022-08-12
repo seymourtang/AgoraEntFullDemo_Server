@@ -14,6 +14,9 @@ public enum ErrorCodeEnum {
     no_code(10003, "请重新发送验证"),
     user_not_exist(10004, "用户不存在"),
     verification_code_sent_failure(10005, "验证码发送失败"),
+    send_code_max(10006, "验证获取次数已达上限，请明天再试"),
+    code_error(10007, "验证码不正确"),
+    code_error_lock(10008, "请5分钟后再尝试"),
 
     /**
      * 房间
@@ -39,6 +42,8 @@ public enum ErrorCodeEnum {
      * 请不要上传污秽内容
      */
     please_dont_upload_cmpurity_content(90002,"请不要上传污秽内容"),
+
+    please_dont_upload_contains_politically_sensitive_content(90003,"请不要上传包含政治敏感内容"),
 
 
 

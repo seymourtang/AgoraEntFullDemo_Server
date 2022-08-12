@@ -21,4 +21,19 @@ public interface CommonKey {
      * 下麦锁
      */
     String out_seat_lock = "on_seat_lock_";
+
+    /**
+     * 验证码发送次数
+     */
+    String verificationSendCodeTimes = "verification_send_code_times:";
+
+    /**
+     * 验证码验证次数
+     */
+    String verificationCheckCodeTimes = "verification_check_code_times:";
+
+    /**
+     * 5分钟验证锁
+     */
+    String verificationCheckCodeTimesLock = "verification_check_code_times_lock:";
 }

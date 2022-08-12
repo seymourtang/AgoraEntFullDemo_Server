@@ -123,8 +123,8 @@ CREATE TABLE `room_users` (
     `user_id` int NOT NULL COMMENT '用户id',
     `on_seat` int NOT NULL COMMENT '是否上麦 0 未上 1-8 在麦上的位置',
     `join_sing` int NOT NULL default  0 COMMENT '是否合唱 0 不合唱 1合唱',
-    `is_video_muted` int NOT NULL default 0 COMMENT '是否合唱 0 不合唱 1合唱',
-    `is_self_muted` int NOT NULL COMMENT '是否合唱 0 不合唱 1合唱',
+    `is_video_muted` int NOT NULL default 0 COMMENT '是否开启摄像头 0 不合唱 1合唱',
+    `is_self_muted` int NOT NULL COMMENT '是否静音 0 不合唱 1合唱',
     `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
     `updated_at` timestamp NULL DEFAULT NULL COMMENT '修改时间',
     `status` int NOT NULL DEFAULT '0',
@@ -135,3 +135,22 @@ CREATE TABLE `room_users` (
     KEY `idx_room_users_user_id` (`user_id`),
     KEY `idx_room_users_room_no` (`room_no`)
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='房间用户';
+
+
+CREATE TABLE `verify_log`
+(
+    `id`         int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `user_no`    varchar(100)     not null comment '用户no',
+    `reason`     varchar(100)     not null comment '原因',
+    `result`     varchar(4000)    not null comment '返回json',
+    `text`       varchar(4000)    not null comment '文本',
+    `created_at` timestamp        NULL DEFAULT NULL COMMENT '创建时间',
+    `updated_at` timestamp        NULL DEFAULT NULL COMMENT '修改时间',
+    `status`     int(1)           NOT NULL DEFAULT 0 COMMENT '状态',
+    PRIMARY KEY (`id`),
+    KEY `idx_verify_log_created_at` (`created_at`),
+    KEY `idx_verify_log_updated_at` (`updated_at`),
+    KEY `idx_verify_log_user_no` (`updated_at`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4 COMMENT ='审核日志';

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.md.service.common.CommonKey;
 import com.md.service.common.ErrorCodeEnum;
 import com.md.service.common.RoomStatus;
 import com.md.service.common.UserRandomInfo;
@@ -42,13 +43,22 @@ import java.util.concurrent.TimeUnit;
 public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements UsersService {
 
     @Resource
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String,Object> redisTemplate;;
 
     @Resource
     private AliSmsSingleSender aliSmsSingleSender;
 
     @Value("${verification_code.time}")
     private Integer codeTime;
+
+    @Value("${verification.send.code.times}")
+    private Integer sendMessageTimes;
+
+    @Value("${verification.code.error.lock}")
+    private Integer errorLock;
+
+    @Value("${verification.code.error.time}")
+    private Integer errorTime;
 
     @Resource
     private JwtUtil jwtUtil;
@@ -70,6 +80,14 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if(!ValidateUtils.isMobile(phone)){
             throw new BaseException(ErrorCodeEnum.phone_error,ErrorCodeEnum.phone_error.getMessage());
         }
+        if(redisTemplate.hasKey(CommonKey.verificationSendCodeTimes + phone)){
+            String times = String.valueOf(redisTemplate.opsForValue().get(CommonKey.verificationSendCodeTimes + phone));
+            if(Integer.parseInt(times) >= sendMessageTimes){
+                throw new BaseException(ErrorCodeEnum.send_code_max);
+            }
+        }
+        redisTemplate.opsForValue().increment(CommonKey.verificationSendCodeTimes + phone);
+        redisTemplate.expire(CommonKey.verificationSendCodeTimes + phone ,MdStringUtils.getRemainSecondsOneDay(),TimeUnit.SECONDS);
         //发送短信
         String code = MdStringUtils.verificationCode();
         JSONObject jsonObject = new JSONObject();
@@ -99,6 +117,19 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 baseMapper.insert(users);
             }
             BeanUtil.copyProperties(users,userInfo);
+        }else{
+            Long times = redisTemplate.opsForValue().increment(CommonKey.verificationCheckCodeTimes + phone);
+            redisTemplate.expire(CommonKey.verificationCheckCodeTimes + phone ,MdStringUtils.getRemainSecondsOneDay(),TimeUnit.SECONDS);
+            if(redisTemplate.hasKey(CommonKey.verificationCheckCodeTimes + phone)){
+                if(times.intValue() >= errorLock){
+                    if(redisTemplate.hasKey(CommonKey.verificationCheckCodeTimesLock + phone)){
+                        throw new BaseException(ErrorCodeEnum.code_error_lock);
+                    }else{
+                        redisTemplate.opsForValue().set(CommonKey.verificationCheckCodeTimesLock + phone,"1",errorTime, TimeUnit.MINUTES);
+                    }
+                }
+            }
+            throw new BaseException(ErrorCodeEnum.code_error);
         }
         String token = jwtUtil.createJWT(userInfo.getUserNo());
         userInfo.setToken(token);
@@ -163,11 +194,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public String getUserNoById(Integer id) {
-        Users users = baseMapper.selectById(id);
-        if(users == null){
+        String userNo = baseMapper.getUserNo(id);
+        if(userNo == null){
             throw new BaseException(ErrorCodeEnum.user_not_exist,ErrorCodeEnum.user_not_exist.getMessage());
         }
-        return users.getUserNo();
+        return userNo;
     }
 
     @Override

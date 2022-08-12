@@ -30,13 +30,14 @@ import org.eclipse.jetty.util.security.Credential;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -65,6 +66,8 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
     @Resource
     private YiTuUtils yiTuUtils;
 
+    @Value("${room.info.close.time}")
+    private Long closeTime;
 
     @Override
     @Transactional
@@ -116,6 +119,17 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         roomInfo.setStatus(RoomStatus.CLOSE.getCode());
         baseMapper.updateById(roomInfo);
 //        rtmJavaClient.closeRoom(roomInfo.getRoomNo());
+    }
+
+    @Override
+    public void closeRoom(String roomNo) {
+        RoomInfo roomInfo = baseMapper.selectOne(new LambdaQueryWrapper<RoomInfo>().
+                eq(RoomInfo::getStatus, RoomStatus.OPEN.getCode()).eq(RoomInfo::getRoomNo,roomNo));
+        if(roomInfo == null){
+            throw new BaseException(ErrorCodeEnum.cannot_close_room,ErrorCodeEnum.cannot_close_room.getMessage());
+        }
+        roomInfo.setStatus(RoomStatus.CLOSE.getCode());
+        baseMapper.updateById(roomInfo);
     }
 
     @Override
@@ -197,6 +211,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
             }
         }
         Users users = usersService.getUserByNo(userNo);
+        roomUsersService.joinRoom(roomInfo.getRoomNo(),users.getId(),-1,0);
         Users creator = usersService.getById(roomInfo.getCreator());
         result.setName(roomInfo.getName());
         result.setCreatorNo(creator.getUserNo());
@@ -208,7 +223,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         result.setRoomUserInfoDTOList(roomUsersService.roomUserInfoDTOList(roomNo,creator.getUserNo()));
         result.setRoomSongInfoDTOS(roomSongService.getRoomSongInfo(roomNo));
 //        rtmJavaClient.sendMessagePeer(JsonUtil.toJsonString(result),creator.getUserNo());
-        roomUsersService.joinRoom(roomInfo.getRoomNo(),users.getId(),-1,0);
+
         return result;
     }
 
@@ -250,5 +265,25 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         JSONObject result = new JSONObject();
         result.put("num",num);
         return result;
+    }
+
+    @Override
+    public void searchRoomAndClose() {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        localDateTime = localDateTime.minusHours(closeTime);
+        List<RoomInfo> roomInfoList = baseMapper.
+                selectList(new LambdaQueryWrapper<RoomInfo>().
+                        eq(RoomInfo::getStatus,0).
+                        lt(RoomInfo::getCreatedAt,localDateTime));
+        Set<String> users = new HashSet<>();
+        Map<String,String> roomUsers = new HashMap<>();
+        roomInfoList.forEach(e -> {
+            String userNo = usersService.getUserNoById(e.getCreator());
+            users.add(userNo);
+            roomUsers.put(userNo,e.getRoomNo());
+        });
+        if(users.size() > 0){
+            rtmJavaClient.queryPeersOnlineStatus(users,roomUsers);
+        }
     }
 }

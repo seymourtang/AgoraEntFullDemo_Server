@@ -1,7 +1,7 @@
 package com.md.service.utils;
 
-import cn.hutool.json.JSONObject;
-
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Random;
 
 public class MdStringUtils {
@@ -25,5 +25,13 @@ public class MdStringUtils {
         Random random = new Random();
         String result  = String.format("%04d",random.nextInt(9999));
         return result;
+    }
+
+    public static Integer getRemainSecondsOneDay() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime midnight = now.plusDays(1).withHour(0).withMinute(0)
+                .withSecond(0).withNano(0);
+        long seconds = ChronoUnit.SECONDS.between(now, midnight);
+        return (int) seconds;
     }
 }

@@ -1,5 +1,6 @@
 package com.md.service.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.md.service.model.BaseResult;
@@ -8,6 +9,7 @@ import com.md.service.model.dto.UserInfo;
 import com.md.service.model.entity.Users;
 import com.md.service.model.form.UpdateUserInfoForm;
 import com.md.service.service.UsersService;
+import com.md.service.utils.RtmTokenBuilderSample;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,9 @@ public class UsersController extends BaseController{
 
     @Resource
     private UsersService usersService;
+
+    @Resource
+    private RtmTokenBuilderSample rtmTokenBuilderSample;
 
     @GetMapping("/verificationCode")
     @ApiOperation("发送验证码")
@@ -81,4 +86,13 @@ public class UsersController extends BaseController{
         return BaseResult.success(usersService.userList(form));
     }
 
+    @GetMapping("/getToken")
+    @ApiOperation("获取用户信息")
+    public BaseResult<?> getToken(Integer userId) throws Exception {
+        JSONObject result = new JSONObject();
+        String token = rtmTokenBuilderSample.getToken(userId);
+        result.put("token",token);
+        log.info("getUserInfo result :{}",result);
+        return BaseResult.success(result);
+    }
 }
