@@ -143,7 +143,6 @@ public class RoomUsersServiceImpl extends ServiceImpl<RoomUsersMapper, RoomUsers
 
     @Override
     public void isVideoMuted(String roomNo, String userNo) {
-        agoraentertainmentUtils.openRecording(12312,"131231asdf");
         Users users = usersService.getUserByNo(userNo);
         RoomUsers roomUsers = baseMapper.selectOne(new LambdaQueryWrapper<RoomUsers>().eq(RoomUsers::getRoomNo,roomNo).
                 eq(RoomUsers::getUserId,users.getId()).last("limit 1"));
