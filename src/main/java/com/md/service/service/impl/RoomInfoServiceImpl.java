@@ -82,7 +82,11 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         List<RoomInfo> roomInfoList = baseMapper.selectList(new LambdaQueryWrapper<RoomInfo>().eq(RoomInfo::getCreator,users.getId()).
                 eq(RoomInfo::getStatus, RoomStatus.OPEN.getCode()));
         if(!CollectionUtils.isEmpty(roomInfoList)){
-            throw new BaseException(ErrorCodeEnum.there_is_no_closed_room,ErrorCodeEnum.there_is_no_closed_room.getMessage());
+            roomInfoList.forEach(e -> {//创建房间 关掉之前开过的房间
+                e.setStatus(RoomStatus.CLOSE.getCode());
+                baseMapper.updateById(e);
+            });
+//            throw new BaseException(ErrorCodeEnum.there_is_no_closed_room,ErrorCodeEnum.there_is_no_closed_room.getMessage());
         }
         RoomInfo roomInfo = new RoomInfo();
         yiTuUtils.checkTest(form.getName());

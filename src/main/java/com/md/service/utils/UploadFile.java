@@ -9,7 +9,6 @@ import com.aliyun.oss.model.ListObjectsRequest;
 import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.ObjectListing;
 import com.aliyun.oss.model.PutObjectRequest;
-import com.md.service.service.QiNiuYunService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -35,9 +34,6 @@ public class UploadFile {
 
     @Value("${al.oss.bucketName}")
     private String bucketName;
-
-    @Resource
-    private QiNiuYunService qiNiuYunService;
 
     @Resource
     private YiTuUtils yiTuUtils;
