@@ -18,7 +18,7 @@ import java.util.List;
 /**
  *
  */
-@Component
+//@Component
 @Slf4j
 public class ScheduledTaskOpenRecording {
 

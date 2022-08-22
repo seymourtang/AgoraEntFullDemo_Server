@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 /**
  * 定时关闭房间
  */
-@Component
+//@Component
 @Slf4j
 public class ScheduledTaskCloseRoom {
 
