@@ -24,6 +24,7 @@ import com.md.service.service.RoomUsersService;
 import com.md.service.service.UsersService;
 import com.md.service.utils.JsonUtil;
 import com.md.service.utils.MdStringUtils;
+import com.md.service.utils.RtmTokenBuilderSample;
 import com.md.service.utils.YiTuUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.security.Credential;
@@ -65,6 +66,9 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
 
     @Resource
     private YiTuUtils yiTuUtils;
+
+    @Resource
+    private RtmTokenBuilderSample rtmTokenBuilderSample;
 
     @Value("${room.info.close.time}")
     private Long closeTime;
@@ -226,8 +230,13 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         result.setBelCanto(roomInfo.getBelCanto());
         result.setRoomUserInfoDTOList(roomUsersService.roomUserInfoDTOList(roomNo,creator.getUserNo()));
         result.setRoomSongInfoDTOS(roomSongService.getRoomSongInfo(roomNo));
+        try {
+            result.setAgoraRTMToken(rtmTokenBuilderSample.getToken(users.getId(),roomNo));
+            result.setAgoraRTCToken(rtmTokenBuilderSample.getRtcToken(users.getId(),roomNo));
+        } catch (Exception e) {
+           log.error("getToken error",e);
+        }
 //        rtmJavaClient.sendMessagePeer(JsonUtil.toJsonString(result),creator.getUserNo());
-
         return result;
     }
 

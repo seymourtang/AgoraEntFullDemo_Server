@@ -13,9 +13,18 @@ public class RtmTokenBuilderSample {
 
     private static int expireTimestamp = 0;
 
-    public String getToken(Integer userId) throws Exception {
+    private static int expirationTimeInSeconds = 60 * 60 * 24;
+
+    public String getToken(Integer userId,String roomNo) throws Exception {
         RtmTokenBuilder token = new RtmTokenBuilder();
         String result = token.buildToken(appId, appCertificate, userId.toString(), RtmTokenBuilder.Role.Rtm_User, expireTimestamp);
+        return result;
+    }
+
+    public String getRtcToken(Integer userId,String roomNo) throws Exception {
+        RtcTokenBuilder token = new RtcTokenBuilder();
+        int timestamp = (int)(System.currentTimeMillis() / 1000 + expirationTimeInSeconds);
+        String result = token.buildTokenWithUid(appId, appCertificate, roomNo,userId, RtcTokenBuilder.Role.Role_Publisher, timestamp);
         return result;
     }
 }

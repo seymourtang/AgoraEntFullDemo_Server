@@ -41,7 +41,7 @@ public class RestTemplateConfig {
         return restTemplate;
 
     }
-
+    
     private ClientHttpRequestFactory simpleClientHttpRequestFactory() {
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setSSLHostnameVerifier(new NoopHostnameVerifier())

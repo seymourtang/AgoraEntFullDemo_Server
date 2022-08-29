@@ -13,6 +13,7 @@ import com.md.service.utils.RtmTokenBuilderSample;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -87,11 +88,18 @@ public class UsersController extends BaseController{
     }
 
     @GetMapping("/getToken")
-    @ApiOperation("获取用户信息")
-    public BaseResult<?> getToken(Integer userId) throws Exception {
+    @ApiOperation("获取token")
+    public BaseResult<?> getToken(Integer userId,String roomNo) throws Exception {
         JSONObject result = new JSONObject();
-        String token = rtmTokenBuilderSample.getToken(userId);
+        if(StringUtils.isEmpty(roomNo)){
+            roomNo = "";
+        }
+        String token = rtmTokenBuilderSample.getToken(userId,roomNo);
+        String rtcToken = rtmTokenBuilderSample.getRtcToken(userId,roomNo);
         result.put("token",token);
+        result.put("rtcToken",rtcToken);
+//        result.put("agoraRTMToken",token);
+//        result.put("agoraRTCToken",rtcToken);
         log.info("getUserInfo result :{}",result);
         return BaseResult.success(result);
     }
