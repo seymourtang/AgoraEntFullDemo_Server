@@ -179,10 +179,8 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                     RoomSong roomSong = baseMapper.selectOne(new LambdaQueryWrapper<RoomSong>().eq(RoomSong::getRoomNo,form.getRoomNo()).
                             eq(RoomSong::getSongNo,form.getSongNo()).last("limit 1"));
                     roomSong.setChorusNo(form.getUserNo());
-                    RtmSongDTO rtmSongDTO = new RtmSongDTO();
-                    rtmSongDTO.setRoomNo(roomInfo.getRoomNo());
-                    rtmSongDTO.setStatus(SongStatus.chorus.getCode());
-                    rtmJavaClient.sendMessage(roomInfo.getRoomNo(), JsonUtil.toJsonString(rtmSongDTO));
+                    roomSong.setIsChorus(1);
+                    baseMapper.updateById(roomSong);
                 }
             }
         } catch (InterruptedException e) {
@@ -204,6 +202,7 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                         orderByAsc(RoomSong::getSort).
                         last("limit 1"));
                 mRoomSong.setIsChorus(0);
+                mRoomSong.setChorusNo("");
                 baseMapper.updateById(mRoomSong);
             }
         }catch (Exception e){

@@ -1,6 +1,7 @@
 package com.md.service.utils;
 
 import com.alibaba.druid.support.json.JSONUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
@@ -82,7 +83,8 @@ public class UploadFile {
             List<OSSObjectSummary> sums = objectListing.getObjectSummaries();
             log.info(" sums size:{} sums:{}",sums.size(), JSONUtils.toJSONString(sums));
             for (OSSObjectSummary s : sums) {
-                System.out.println("\t" + s.getKey());
+                yiTuUtils.checkImage(s.getKey());
+//                System.out.println("\t" + s.getKey());
             }
         } catch (OSSException oe) {
             System.out.println("Caught an OSSException, which means your request made it to OSS, "

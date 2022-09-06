@@ -3,6 +3,8 @@ package com.md.service.utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class RtmTokenBuilderSample {
     @Value("${rtm.java.appId}")
