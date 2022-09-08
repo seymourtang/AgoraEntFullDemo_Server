@@ -36,12 +36,16 @@ public class UploadFile {
     @Value("${al.oss.bucketName}")
     private String bucketName;
 
+    @Value("${al.oss.objectName.url}")
+    private String objectNameUrl;
+
     @Resource
     private YiTuUtils yiTuUtils;
 
     public String uploadFile(MultipartFile file, String objectName) {
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         try {
+            objectName = objectNameUrl + objectName;
             PutObjectRequest putObjectRequest = null;
             try {
                 putObjectRequest = new PutObjectRequest(bucketName, objectName, new ByteArrayInputStream(file.getBytes()));
