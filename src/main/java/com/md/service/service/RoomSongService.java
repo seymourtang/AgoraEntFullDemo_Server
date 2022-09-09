@@ -76,4 +76,11 @@ public interface RoomSongService extends IService<RoomSong> {
      * @param songNo
      */
     void delSong(String roomNo,String songNo,Integer sort);
+
+    /**
+     * 删除 此房间所有点歌曲
+     * @param roomNo
+     * @param userNo
+     */
+    void delSong(String roomNo,String userNo);
 }

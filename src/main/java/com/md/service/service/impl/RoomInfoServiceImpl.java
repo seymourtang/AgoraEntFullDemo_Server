@@ -176,6 +176,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         if(roomInfo == null){
             throw new BaseException(ErrorCodeEnum.no_room,ErrorCodeEnum.no_room.getMessage());
         }
+        roomSongService.delSong(roomNo,userNo);
         roomUsersService.outSeat(roomNo,users.getId());
     }
 
@@ -245,6 +246,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         roomUsersService.outRoom(roomNo,userNo);
         Users users = usersService.getUserByNo(userNo);
         roomUsersService.outSeat(roomNo,users.getId());
+        roomSongService.delSong(roomNo,userNo);
     }
 
     @Override

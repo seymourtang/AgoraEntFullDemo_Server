@@ -37,6 +37,9 @@ public class YiTuUtils {
     @Value("${yitu.devKey}")
     private String devKey;
 
+    @Value("${yitu.url}")
+    private String yituUrl;
+
 
     public JSONObject checkTest(String msg) {
         String url = "https://as-staging.yitutech.com/v1/antispam/textscan";
@@ -62,7 +65,7 @@ public class YiTuUtils {
     }
 
     public JSONObject checkImage(String imageUrl){
-        String url = "https://antispam-image.yitutech.com/v1/antispam/image/syncscan";
+        String url = yituUrl;
         log.info("url : {}",url);
         JSONObject body = new JSONObject();
         body.put("appId",appId);
@@ -90,12 +93,16 @@ public class YiTuUtils {
             throw new RuntimeException(e);
         }
         JSONObject result = JSON.parseObject(ret);
-        if(result.getJSONArray("tasks").getJSONObject(0).getString("result").equals("block")){
-            if(result.getJSONArray("tasks").getJSONObject(0).getJSONArray("detail").getJSONObject(0).getString("scene").equals("politics")){
-                throw new BaseException(ErrorCodeEnum.please_dont_upload_contains_politically_sensitive_content);
-            }else{
-                throw new BaseException(ErrorCodeEnum.please_dont_upload_cmpurity_content);
+        if(result.getInteger("rtn").equals(0)){
+            if(result.getJSONArray("tasks").getJSONObject(0).getString("result").equals("block")){
+                if(result.getJSONArray("tasks").getJSONObject(0).getJSONArray("detail").getJSONObject(0).getString("scene").equals("politics")){
+                    throw new BaseException(ErrorCodeEnum.please_dont_upload_contains_politically_sensitive_content);
+                }else{
+                    throw new BaseException(ErrorCodeEnum.please_dont_upload_cmpurity_content);
+                }
             }
+        }else{
+            log.error("yifu checkImage error");
         }
         return null ;
     }

@@ -284,4 +284,16 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
             baseMapper.deleteById(roomSong);
         }
     }
+
+    @Override
+    public void delSong(String roomNo, String userNo) {
+        List<RoomSong> roomSong = baseMapper.selectList(new LambdaQueryWrapper<RoomSong>().
+                eq(RoomSong::getRoomNo,roomNo).
+                eq(RoomSong::getUserNo,userNo));
+        if(CollectionUtils.isNotEmpty(roomSong)){
+            roomSong.forEach(e -> {
+                baseMapper.deleteById(e);
+            });
+        }
+    }
 }
