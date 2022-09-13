@@ -233,7 +233,8 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         result.setRoomSongInfoDTOS(roomSongService.getRoomSongInfo(roomNo));
         try {
             result.setAgoraRTMToken(rtmTokenBuilderSample.getToken(users.getId(),roomNo));
-            result.setAgoraRTCToken(rtmTokenBuilderSample.getRtcToken(users.getId(),roomNo));
+            result.setAgoraPlayerRTCToken(rtmTokenBuilderSample.getRtcToken(users.getId() * 10 + 1,roomNo));
+            result.setAgoraRTCToken(rtmTokenBuilderSample.getRtcToken(users.getId() ,roomNo));
         } catch (Exception e) {
            log.error("getToken error",e);
         }

@@ -12,8 +12,14 @@ public class RoomSongInfoDTO {
     @ApiModelProperty("用户no")
     private String userNo;
 
+    @ApiModelProperty("用户id")
+    private Integer userId;
+
     @ApiModelProperty("用户名字")
     private String name;
+
+    @ApiModelProperty("合唱者id")
+    private Integer chorusId = 0;
 
     @ApiModelProperty("合唱者")
     private String chorusNo;

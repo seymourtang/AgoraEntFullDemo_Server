@@ -10,6 +10,7 @@ import com.md.service.config.RtmJavaClient;
 import com.md.service.exception.BaseException;
 import com.md.service.model.dto.RoomSongInfoDTO;
 import com.md.service.model.dto.RtmSongDTO;
+import com.md.service.model.dto.UserInfo;
 import com.md.service.model.entity.RoomInfo;
 import com.md.service.model.entity.RoomSong;
 import com.md.service.model.entity.Songs;
@@ -24,10 +25,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -231,6 +229,7 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                 RoomSongInfoDTO roomSongInfoDTO = new RoomSongInfoDTO();
                 roomSongInfoDTO.setSongNo(e.getSongNo());
                 roomSongInfoDTO.setUserNo(e.getUserNo());
+                roomSongInfoDTO.setUserId(usersService.getUserByNo(e.getUserNo()).getId());
                 roomSongInfoDTO.setName(usersService.getUserByNo(e.getUserNo()).getName());
                 roomSongInfoDTO.setSort(e.getSort());
                 roomSongInfoDTO.setIsOriginal(e.getIsOriginal());
@@ -243,6 +242,10 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                     roomSongInfoDTO.setLyric(songMap.get(e.getSongNo()).getLyric());
                 }
                 roomSongInfoDTO.setChorusNo(e.getChorusNo());
+                if(StringUtils.isNoneBlank(e.getChorusNo())){
+                    roomSongInfoDTO.setChorusId(Optional.ofNullable(
+                            usersService.getUser(e.getChorusNo())).orElse(new UserInfo()).getId());
+                }
                 roomSongInfoDTO.setIsChorus(e.getIsChorus() == 1);
                 //存在歌词返回
                 if(StringUtils.isNoneBlank(roomSongInfoDTO.getLyric())){

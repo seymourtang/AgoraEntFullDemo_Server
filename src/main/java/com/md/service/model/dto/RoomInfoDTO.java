@@ -35,6 +35,9 @@ public class RoomInfoDTO {
     @ApiModelProperty("agoraRTCToken")
     private String agoraRTCToken;
 
+    @ApiModelProperty("agoraPlayerRTCToken")
+    private String agoraPlayerRTCToken;
+
     private String code = "getRoomInfo";
 
     private Long time = System.currentTimeMillis();
