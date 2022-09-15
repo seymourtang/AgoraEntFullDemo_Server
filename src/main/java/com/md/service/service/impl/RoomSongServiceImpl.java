@@ -213,14 +213,16 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
 
     @Override
     public void delChorus(String roomNo, String userNo) {
-        RoomSong mRoomSong = baseMapper.selectOne(new LambdaQueryWrapper<RoomSong>().
+        List<RoomSong> mRoomSong = baseMapper.selectList(new LambdaQueryWrapper<RoomSong>().
                 eq(RoomSong::getRoomNo,roomNo).
-                eq(RoomSong::getChorusNo,userNo).
-                orderByAsc(RoomSong::getSort).
-                last("limit 1"));
-        mRoomSong.setIsChorus(0);
-        mRoomSong.setChorusNo("");
-        baseMapper.updateById(mRoomSong);
+                eq(RoomSong::getChorusNo,userNo));
+        if(CollectionUtils.isNotEmpty(mRoomSong)){
+            mRoomSong.forEach(e -> {
+                e.setIsChorus(0);
+                e.setChorusNo("");
+                baseMapper.updateById(e);
+            });
+        }
     }
 
     @Override
