@@ -69,6 +69,9 @@ public class AgoraentertainmentUtils {
     @Value("${callback.seed}")
     private String callbackSeed;
 
+    @Value("${al.oss.objectName.url}")
+    private String objectNameUrl;
+
     @Resource
     private SongsService songsService;
 
@@ -254,6 +257,7 @@ public class AgoraentertainmentUtils {
         storageConfig.put("secretKey",accessKeySecret);
         storageConfig.put("vendor",2);
         JSONArray fileNamePrefix = new JSONArray();
+        fileNamePrefix.add(objectNameUrl);
         fileNamePrefix.add(roomNo);
         fileNamePrefix.add(userNo.toString());
         storageConfig.put("fileNamePrefix",fileNamePrefix);

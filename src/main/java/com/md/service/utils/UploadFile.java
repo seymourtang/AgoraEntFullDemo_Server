@@ -80,7 +80,7 @@ public class UploadFile {
     public String getImages(String roomNo, String userNo) {
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-        String keyPrefix = roomNo + "/" + userNo;
+        String keyPrefix = objectNameUrl + "/" + roomNo + "/" + userNo;
         try {
             // 列举包含指定前缀的文件。默认列举100个文件。
             ObjectListing objectListing = ossClient.listObjects(new ListObjectsRequest(bucketName).withPrefix(keyPrefix));
