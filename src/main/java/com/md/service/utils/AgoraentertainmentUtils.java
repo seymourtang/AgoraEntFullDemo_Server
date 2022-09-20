@@ -70,8 +70,8 @@ public class AgoraentertainmentUtils {
     @Value("${callback.seed}")
     private String callbackSeed;
 
-    @Value("${al.oss.objectName.url}")
-    private String objectNameUrl;
+    @Value("${al.oss.objectNameCheck.url}")
+    private String objectNameCheck;
 
     @Resource
     private SongsService songsService;
@@ -258,8 +258,8 @@ public class AgoraentertainmentUtils {
         storageConfig.put("secretKey",accessKeySecret);
         storageConfig.put("vendor",2);
         JSONArray fileNamePrefix = new JSONArray();
-        if(StringUtils.isNoneBlank(objectNameUrl)){
-            fileNamePrefix.add(objectNameUrl);
+        if(StringUtils.isNoneBlank(objectNameCheck)){
+            fileNamePrefix.add(objectNameCheck);
         }
         fileNamePrefix.add(roomNo);
         fileNamePrefix.add(userNo.toString());
