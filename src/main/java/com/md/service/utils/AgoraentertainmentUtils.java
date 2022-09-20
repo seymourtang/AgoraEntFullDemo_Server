@@ -76,6 +76,9 @@ public class AgoraentertainmentUtils {
     @Resource
     private SongsService songsService;
 
+    @Resource
+    private RtmTokenBuilderSample rtmTokenBuilderSample;
+
     public JSONObject getAll(Integer pageType, String pageCode, Integer size) {
         while (true) {
             String plainCredentials = customerKey + ":" + customerSecret;
@@ -317,6 +320,11 @@ public class AgoraentertainmentUtils {
         clientRequest.put("recordingConfig",recordingConfig);
         clientRequest.put("extensionServiceConfig",extensionServiceConfig);
         clientRequest.put("recordingConfig",recordingConfig);
+        try {
+            clientRequest.put("token",rtmTokenBuilderSample.getRtcToken(999999,roomNo));
+        } catch (Exception e) {
+            log.error("reviewVoice get token error",e);
+        }
         bodyStart.put("clientRequest",clientRequest);
         log.info("reviewVoice bodyStart : {}",bodyStart);
         HttpEntity<?> httpEntityStart = new HttpEntity<>(bodyStart, getJsonHeader(authorizationHeader));
