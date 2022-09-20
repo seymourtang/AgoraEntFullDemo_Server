@@ -1,17 +1,17 @@
 package com.md.service.utils;
 
 import com.alibaba.druid.support.json.JSONUtils;
-import com.alibaba.fastjson.JSONObject;
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
-import com.aliyun.oss.model.ListObjectsRequest;
 import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.ObjectListing;
 import com.aliyun.oss.model.PutObjectRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +41,9 @@ public class UploadFile {
 
     @Resource
     private YiTuUtils yiTuUtils;
+
+    @Resource
+    private RedisTemplate<String,Object> redisTemplate;;
 
     public String uploadFile(MultipartFile file, String objectName) {
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
@@ -80,16 +83,23 @@ public class UploadFile {
     public String getImages(String roomNo, String userNo) {
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-        String keyPrefix = objectNameUrl + "/" + roomNo + "/" + userNo;
+        String keyPrefix = objectNameUrl + roomNo + "/" + userNo;
         try {
-            // 列举包含指定前缀的文件。默认列举100个文件。
-            ObjectListing objectListing = ossClient.listObjects(new ListObjectsRequest(bucketName).withPrefix(keyPrefix));
-            List<OSSObjectSummary> sums = objectListing.getObjectSummaries();
-            log.info(" sums size:{} sums:{}",sums.size(), JSONUtils.toJSONString(sums));
-            for (OSSObjectSummary s : sums) {
-                yiTuUtils.checkImage(s.getKey());
-//                System.out.println("\t" + s.getKey());
+            String mark = "";
+            if(redisTemplate.hasKey(keyPrefix)){
+                mark = redisTemplate.opsForValue().get(keyPrefix).toString();
             }
+            // 列举包含指定前缀的文件。默认列举100个文件。
+            ObjectListing objectListing = ossClient.listObjects(bucketName,keyPrefix);
+            objectListing.setMarker(mark);
+            List<OSSObjectSummary> sums = objectListing.getObjectSummaries();
+            log.info("keyPrefix：{}  sums size:{}",keyPrefix,sums.size());
+            for (OSSObjectSummary s : sums) {
+                Thread.sleep(1000);
+                yiTuUtils.checkImage( "https://" + bucketName + "." + endpoint + "/" + s.getKey());
+                mark = s.getKey();
+            }
+            redisTemplate.opsForValue().set(keyPrefix,mark);
         } catch (OSSException oe) {
             System.out.println("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");
@@ -97,7 +107,7 @@ public class UploadFile {
             System.out.println("Error Code:" + oe.getErrorCode());
             System.out.println("Request ID:" + oe.getRequestId());
             System.out.println("Host ID:" + oe.getHostId());
-        } catch (ClientException ce) {
+        } catch (ClientException | InterruptedException ce) {
             System.out.println("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network.");

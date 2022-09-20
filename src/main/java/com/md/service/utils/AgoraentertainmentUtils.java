@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.md.service.model.entity.Songs;
 import com.md.service.service.SongsService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -240,7 +241,7 @@ public class AgoraentertainmentUtils {
         log.info("startUrl : {}", startUrl);
         JSONObject bodyStart = new JSONObject();
         bodyStart.put("cname", roomNo);
-        bodyStart.put("uid", userNo.toString());
+        bodyStart.put("uid", "999999");
         JSONObject clientRequestStart = new JSONObject();
         JSONObject recordingConfig = new JSONObject();
         recordingConfig.put("channelType",1);
@@ -257,7 +258,9 @@ public class AgoraentertainmentUtils {
         storageConfig.put("secretKey",accessKeySecret);
         storageConfig.put("vendor",2);
         JSONArray fileNamePrefix = new JSONArray();
-        fileNamePrefix.add(objectNameUrl);
+        if(StringUtils.isNoneBlank(objectNameUrl)){
+            fileNamePrefix.add(objectNameUrl);
+        }
         fileNamePrefix.add(roomNo);
         fileNamePrefix.add(userNo.toString());
         storageConfig.put("fileNamePrefix",fileNamePrefix);
@@ -282,7 +285,7 @@ public class AgoraentertainmentUtils {
         log.info("startUrl : {}", startUrl);
         JSONObject bodyStart = new JSONObject();
         bodyStart.put("cname", roomNo);
-        bodyStart.put("uid", userNo.toString());
+        bodyStart.put("uid", "999999");
         JSONObject clientRequest = new JSONObject();
         JSONObject extensionServiceConfig = new JSONObject();
         extensionServiceConfig.put("apiVersion","v1");
@@ -324,7 +327,7 @@ public class AgoraentertainmentUtils {
         log.info("acquireUrl : {}", acquireUrl);
         JSONObject body = new JSONObject();
         body.put("cname", roomNo);
-        body.put("uid", userNo.toString());
+        body.put("uid", "999999");
         JSONObject clientRequest = new JSONObject();
         body.put("clientRequest", clientRequest);
         log.info("body : {}",body);
