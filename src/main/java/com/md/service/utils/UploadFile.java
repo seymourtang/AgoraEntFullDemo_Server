@@ -39,6 +39,9 @@ public class UploadFile {
     @Value("${al.oss.objectName.url}")
     private String objectNameUrl;
 
+    @Value("${al.oss.objectNameCheck.url}")
+    private String objectNameCheck;
+
     @Resource
     private YiTuUtils yiTuUtils;
 
@@ -83,7 +86,7 @@ public class UploadFile {
     public String getImages(String roomNo, String userNo) {
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-        String keyPrefix = objectNameUrl + roomNo + "/" + userNo;
+        String keyPrefix = objectNameCheck + roomNo + "/" + userNo;
         try {
             String mark = "";
             if(redisTemplate.hasKey(keyPrefix)){

@@ -83,9 +83,9 @@ public class YiTuUtils {
             throw new RuntimeException(e);
         }
         HttpEntity<?> httpEntity = new HttpEntity<>(body.toString().replaceAll("\\\\",""), getJsonHeaderTwo());
-        log.info("yitu:{}", httpEntity);
+        log.info("checkImage yitu:{}", httpEntity);
         ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, httpEntity, String.class);
-        log.info("responseEntity : {}",responseEntity.getBody());
+        log.info("checkImage responseEntity : {}",responseEntity.getBody());
         String ret;
         try {
             ret = new String(responseEntity.getBody().getBytes("ISO-8859-1"),"utf-8");

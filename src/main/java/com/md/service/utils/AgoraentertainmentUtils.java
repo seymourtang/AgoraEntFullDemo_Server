@@ -211,7 +211,7 @@ public class AgoraentertainmentUtils {
         MultiValueMap<String, String> paramJson = new LinkedMultiValueMap<>();
         HttpEntity<?> httpEntity = new HttpEntity<>(paramJson, getJsonHeader(authorizationHeader));
         ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
-        log.info("responseEntity : {}", responseEntity.getBody());
+        log.info("songHot responseEntity : {}", responseEntity.getBody());
         String ret;
         try {
             ret = new String(responseEntity.getBody().getBytes("ISO-8859-1"), "utf-8");
@@ -268,11 +268,11 @@ public class AgoraentertainmentUtils {
         clientRequestStart.put("storageConfig",storageConfig);
         clientRequestStart.put("recordingConfig",recordingConfig);
         bodyStart.put("clientRequest",clientRequestStart);
-        log.info("bodyStart : {}",bodyStart);
+        log.info("openRecording bodyStart : {}",bodyStart);
         HttpEntity<?> httpEntityStart = new HttpEntity<>(bodyStart, getJsonHeader(authorizationHeader));
-        log.info("httpEntityStart : {}",httpEntityStart);
+        log.info("openRecording httpEntityStart : {}",httpEntityStart);
         ResponseEntity<String> responseEntityStart = restTemplate.postForEntity(startUrl, httpEntityStart, String.class);
-        log.info("responseEntityStart : {}", responseEntityStart.getBody());
+        log.info("openRecording responseEntityStart : {}", responseEntityStart.getBody());
     }
 
     @Async
@@ -315,11 +315,11 @@ public class AgoraentertainmentUtils {
         clientRequest.put("extensionServiceConfig",extensionServiceConfig);
         clientRequest.put("recordingConfig",recordingConfig);
         bodyStart.put("clientRequest",clientRequest);
-        log.info("bodyStart : {}",bodyStart);
+        log.info("reviewVoice bodyStart : {}",bodyStart);
         HttpEntity<?> httpEntityStart = new HttpEntity<>(bodyStart, getJsonHeader(authorizationHeader));
-        log.info("httpEntityStart : {}",httpEntityStart);
+        log.info("reviewVoice httpEntityStart : {}",httpEntityStart);
         ResponseEntity<String> responseEntityStart = restTemplate.postForEntity(startUrl, httpEntityStart, String.class);
-        log.info("responseEntityStart : {}", responseEntityStart.getBody());
+        log.info("reviewVoice responseEntityStart : {}", responseEntityStart.getBody());
     }
 
     private String resourceId(String roomNo,Integer userNo,String authorizationHeader){

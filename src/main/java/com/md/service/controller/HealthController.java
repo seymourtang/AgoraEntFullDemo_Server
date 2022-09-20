@@ -10,16 +10,15 @@ import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @RestController
-@RequestMapping("/health")
+@RequestMapping("/")
 @Api(tags = "健康检查")
 @Slf4j
 @EnableSwagger2
 public class HealthController {
 
-    @GetMapping("/")
+    @GetMapping("/health")
     @ApiOperation("健康检查")
     public BaseResult<String> health(){
-        log.info("call heath");
         return BaseResult.success();
     }
 }

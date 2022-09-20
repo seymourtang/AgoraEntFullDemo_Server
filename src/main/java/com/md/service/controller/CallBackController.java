@@ -10,7 +10,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @RestController
 @RequestMapping("/callBack")
-@Api(tags = "回到")
+@Api(tags = "回调")
 @Slf4j
 @EnableSwagger2
 public class CallBackController {
