@@ -259,7 +259,9 @@ public class AgoraentertainmentUtils {
         storageConfig.put("vendor",2);
         JSONArray fileNamePrefix = new JSONArray();
         if(StringUtils.isNoneBlank(objectNameCheck)){
-            fileNamePrefix.add(objectNameCheck);
+            for (String s : objectNameCheck.split("\\/")) {
+                fileNamePrefix.add(s);
+            }
         }
         fileNamePrefix.add(roomNo);
         fileNamePrefix.add(userNo.toString());
@@ -272,7 +274,8 @@ public class AgoraentertainmentUtils {
         HttpEntity<?> httpEntityStart = new HttpEntity<>(bodyStart, getJsonHeader(authorizationHeader));
         log.info("openRecording httpEntityStart : {}",httpEntityStart);
         ResponseEntity<String> responseEntityStart = restTemplate.postForEntity(startUrl, httpEntityStart, String.class);
-        log.info("openRecording responseEntityStart : {}", responseEntityStart.getBody());
+        log.info("openRecording responseEntityStart : {} code: {}", responseEntityStart.getBody(),
+                responseEntityStart.getStatusCode());
     }
 
     @Async
