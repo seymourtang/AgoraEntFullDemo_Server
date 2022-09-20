@@ -272,6 +272,11 @@ public class AgoraentertainmentUtils {
         clientRequestStart.put("snapshotConfig",snapshotConfig);
         clientRequestStart.put("storageConfig",storageConfig);
         clientRequestStart.put("recordingConfig",recordingConfig);
+        try {
+            clientRequestStart.put("token",rtmTokenBuilderSample.getRtcToken(999999,roomNo));
+        } catch (Exception e) {
+            log.error("reviewVoice get token error",e);
+        }
         bodyStart.put("clientRequest",clientRequestStart);
         log.info("openRecording bodyStart : {}",bodyStart);
         HttpEntity<?> httpEntityStart = new HttpEntity<>(bodyStart, getJsonHeader(authorizationHeader));
