@@ -373,7 +373,7 @@ public class AgoraentertainmentUtils {
         extensionServiceConfig.put("extensionServices",extensionServices);
         JSONObject recordingConfig = new JSONObject();
         recordingConfig.put("channelType",1);
-        recordingConfig.put("maxIdleTime",30);
+        recordingConfig.put("maxIdleTime",15);
         recordingConfig.put("streamTypes",0);
         recordingConfig.put("subscribeUidGroup",0);
         clientRequest.put("recordingConfig",recordingConfig);
