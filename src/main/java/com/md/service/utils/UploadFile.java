@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
@@ -102,7 +103,7 @@ public class UploadFile {
                 yiTuUtils.checkImage( "https://" + bucketName + "." + endpoint + "/" + s.getKey());
                 mark = s.getKey();
             }
-            redisTemplate.opsForValue().set(keyPrefix,mark);
+            redisTemplate.opsForValue().set(keyPrefix,mark,7, TimeUnit.DAYS);
         } catch (OSSException oe) {
             System.out.println("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");

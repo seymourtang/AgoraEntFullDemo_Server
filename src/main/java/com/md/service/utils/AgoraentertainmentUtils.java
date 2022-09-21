@@ -297,7 +297,9 @@ public class AgoraentertainmentUtils {
         try {
             JSONObject result = JSONObject.parseObject(responseEntityStart.getBody());
             String redisKey = "sid:"+ userNo + "_" + roomNo;
-            redisTemplate.opsForValue().set(redisKey,result.getString("sid"));
+            String redisKeyResourceId = "resourceId:"+ userNo + "_" + roomNo;
+            redisTemplate.opsForValue().set(redisKey,result.getString("sid"),24,TimeUnit.HOURS);
+            redisTemplate.opsForValue().set(redisKeyResourceId,resourceId,24,TimeUnit.HOURS);
         }catch (Exception e){
             log.error("add redis key error",e);
         }
@@ -308,11 +310,15 @@ public class AgoraentertainmentUtils {
         String plainCredentials = customerKey + ":" + customerSecret;
         String base64Credentials = new String(Base64.getEncoder().encode(plainCredentials.getBytes()));
         String authorizationHeader = "Basic " + base64Credentials;
-        String resourceId = resourceId(roomNo,userNo,authorizationHeader);
+        String resourceId = "";
         String redisKey = "sid:"+ userNo + "_" + roomNo;
+        String redisKeyResourceId = "resourceId:"+ userNo + "_" + roomNo;
         String sid = "";
         if(redisTemplate.hasKey(redisKey)){
             sid = redisTemplate.opsForValue().get(redisKey).toString();
+        }
+        if(redisTemplate.hasKey(redisKeyResourceId)){
+            resourceId = redisTemplate.opsForValue().get(redisKeyResourceId).toString();
         }
         String startUrl = "https://api.agora.io/v1/apps/" + appId + "/cloud_recording/resourceid/" + resourceId + "/sid/"+sid+"/mode/individual/stop";
         log.info("closeRecording startUrl : {}", startUrl);
