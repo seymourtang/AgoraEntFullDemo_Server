@@ -10,8 +10,11 @@ import com.md.service.service.SongsService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -23,6 +26,7 @@ import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 声网服务
@@ -75,6 +79,9 @@ public class AgoraentertainmentUtils {
 
     @Resource
     private SongsService songsService;
+
+    @Resource
+    private RedisTemplate<String,Object> redisTemplate;
 
     @Resource
     private RtmTokenBuilderSample rtmTokenBuilderSample;
@@ -244,11 +251,14 @@ public class AgoraentertainmentUtils {
         log.info("startUrl : {}", startUrl);
         JSONObject bodyStart = new JSONObject();
         bodyStart.put("cname", roomNo);
-        bodyStart.put("uid", "999999");
+        bodyStart.put("uid", String.valueOf(userNo * 1000 + 999));
         JSONObject clientRequestStart = new JSONObject();
         JSONObject recordingConfig = new JSONObject();
         recordingConfig.put("channelType",1);
         recordingConfig.put("subscribeUidGroup",0);
+        JSONArray subscribeAudioUids = new JSONArray();
+        subscribeAudioUids.add(userNo.toString());
+        recordingConfig.put("subscribeVideoUids",subscribeAudioUids);
         JSONObject snapshotConfig = new JSONObject();
         snapshotConfig.put("captureInterval",5);
         JSONArray fileType = new JSONArray();
@@ -273,7 +283,7 @@ public class AgoraentertainmentUtils {
         clientRequestStart.put("storageConfig",storageConfig);
         clientRequestStart.put("recordingConfig",recordingConfig);
         try {
-            clientRequestStart.put("token",rtmTokenBuilderSample.getRtcToken(999999,roomNo));
+            clientRequestStart.put("token",rtmTokenBuilderSample.getRtcToken(userNo * 1000 + 999,roomNo));
         } catch (Exception e) {
             log.error("reviewVoice get token error",e);
         }
@@ -284,10 +294,48 @@ public class AgoraentertainmentUtils {
         ResponseEntity<String> responseEntityStart = restTemplate.postForEntity(startUrl, httpEntityStart, String.class);
         log.info("openRecording responseEntityStart : {} code: {}", responseEntityStart.getBody(),
                 responseEntityStart.getStatusCode());
+        try {
+            JSONObject result = JSONObject.parseObject(responseEntityStart.getBody());
+            String redisKey = "sid:"+ userNo + "_" + roomNo;
+            redisTemplate.opsForValue().set(redisKey,result.getString("sid"));
+        }catch (Exception e){
+            log.error("add redis key error",e);
+        }
     }
 
     @Async
-    public void reviewVoice(Integer userNo, String roomNo) {
+    public void closeRecording(Integer userNo, String roomNo) {
+        String plainCredentials = customerKey + ":" + customerSecret;
+        String base64Credentials = new String(Base64.getEncoder().encode(plainCredentials.getBytes()));
+        String authorizationHeader = "Basic " + base64Credentials;
+        String resourceId = resourceId(roomNo,userNo,authorizationHeader);
+        String redisKey = "sid:"+ userNo + "_" + roomNo;
+        String sid = "";
+        if(redisTemplate.hasKey(redisKey)){
+            sid = redisTemplate.opsForValue().get(redisKey).toString();
+        }
+        String startUrl = "https://api.agora.io/v1/apps/" + appId + "/cloud_recording/resourceid/" + resourceId + "/sid/"+sid+"/mode/individual/stop";
+        log.info("closeRecording startUrl : {}", startUrl);
+        JSONObject bodyStart = new JSONObject();
+        bodyStart.put("cname", roomNo);
+        bodyStart.put("uid", String.valueOf(userNo * 1000 + 999));
+        JSONObject clientRequestStart = new JSONObject();
+        clientRequestStart.put("async_stop",false);
+        bodyStart.put("clientRequest",clientRequestStart);
+        log.info("closeRecording bodyStart : {}",bodyStart);
+        HttpEntity<?> httpEntityStart = new HttpEntity<>(bodyStart, getJsonHeader(authorizationHeader));
+        log.info("closeRecording httpEntityStart : {}",httpEntityStart);
+        ResponseEntity<String> responseEntityStart = restTemplate.postForEntity(startUrl, httpEntityStart, String.class);
+        log.info("closeRecording responseEntityStart : {} code: {}", responseEntityStart.getBody(),
+                responseEntityStart.getStatusCode());
+    }
+
+    @Async
+    public void reviewVoice(Integer userNo, String roomNo,Integer onSeat) {
+        String redisKey = "reviewVoice_"+userNo+ ":" + roomNo + ":" +onSeat;
+        if(redisTemplate.hasKey(redisKey)){
+            return;
+        }
         String plainCredentials = customerKey + ":" + customerSecret;
         String base64Credentials = new String(Base64.getEncoder().encode(plainCredentials.getBytes()));
         String authorizationHeader = "Basic " + base64Credentials;
@@ -296,7 +344,7 @@ public class AgoraentertainmentUtils {
         log.info("startUrl : {}", startUrl);
         JSONObject bodyStart = new JSONObject();
         bodyStart.put("cname", roomNo);
-        bodyStart.put("uid", "999999");
+        bodyStart.put("uid", String.valueOf(userNo * 1000 + 999));
         JSONObject clientRequest = new JSONObject();
         JSONObject extensionServiceConfig = new JSONObject();
         extensionServiceConfig.put("apiVersion","v1");
@@ -326,7 +374,7 @@ public class AgoraentertainmentUtils {
         clientRequest.put("extensionServiceConfig",extensionServiceConfig);
         clientRequest.put("recordingConfig",recordingConfig);
         try {
-            clientRequest.put("token",rtmTokenBuilderSample.getRtcToken(999999,roomNo));
+            clientRequest.put("token",rtmTokenBuilderSample.getRtcToken(userNo * 1000 + 999,roomNo));
         } catch (Exception e) {
             log.error("reviewVoice get token error",e);
         }
@@ -336,6 +384,9 @@ public class AgoraentertainmentUtils {
         log.info("reviewVoice httpEntityStart : {}",httpEntityStart);
         ResponseEntity<String> responseEntityStart = restTemplate.postForEntity(startUrl, httpEntityStart, String.class);
         log.info("reviewVoice responseEntityStart : {}", responseEntityStart.getBody());
+        if(responseEntityStart.getStatusCode().equals(HttpStatus.OK)){
+            redisTemplate.opsForValue().set(redisKey,"ok", 2,TimeUnit.HOURS);
+        }
     }
 
     private String resourceId(String roomNo,Integer userNo,String authorizationHeader){
@@ -343,7 +394,7 @@ public class AgoraentertainmentUtils {
         log.info("acquireUrl : {}", acquireUrl);
         JSONObject body = new JSONObject();
         body.put("cname", roomNo);
-        body.put("uid", "999999");
+        body.put("uid", String.valueOf(userNo * 1000 + 999));
         JSONObject clientRequest = new JSONObject();
         body.put("clientRequest", clientRequest);
         log.info("body : {}",body);

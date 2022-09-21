@@ -178,7 +178,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         }
         roomSongService.delSong(roomNo,userNo);
         roomSongService.delChorus(roomNo,userNo);
-        roomUsersService.outSeat(roomNo,users.getId());
+        roomUsersService.outSeat(roomNo,users.getId(),userNo);
     }
 
     @Override
@@ -247,7 +247,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
     public void outRoom(String roomNo, String userNo) {
         roomUsersService.outRoom(roomNo,userNo);
         Users users = usersService.getUserByNo(userNo);
-        roomUsersService.outSeat(roomNo,users.getId());
+        roomUsersService.outSeat(roomNo,users.getId(),userNo);
         roomSongService.delSong(roomNo,userNo);
         roomSongService.delChorus(roomNo,userNo);
     }

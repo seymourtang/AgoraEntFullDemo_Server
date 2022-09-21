@@ -45,7 +45,7 @@ public class ScheduledTaskOpenRecording {
         // 检测音频
         List<RoomOpenUserDTO> listVoice = roomInfoMapper.getOpenVoiceUser();
         listVoice.forEach(e -> {
-            agoraentertainmentUtils.reviewVoice(e.getUserId(),e.getRoomNo());
+            agoraentertainmentUtils.reviewVoice(e.getUserId(),e.getRoomNo(),e.getOnSeat());
         });
         log.info("openVideoScreenshotsOverTime");
     }
