@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.md.common.im.ImApi;
 import com.md.common.util.EncryptionUtil;
+import com.md.mic.common.constants.CustomEventType;
 import com.md.mic.exception.RoomNotFoundException;
 import com.md.mic.exception.VoiceRoomSecurityException;
 import com.md.mic.model.VoiceRoom;
@@ -26,6 +27,7 @@ import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -63,17 +65,10 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
     private Duration ttl;
 
     @Override
-    @Transactional
     public void deleteByRoomId(String roomId) {
         LambdaQueryWrapper<VoiceRoomUser> queryWrapper =
                 new LambdaQueryWrapper<VoiceRoomUser>().eq(VoiceRoomUser::getRoomId, roomId);
-        List<VoiceRoomUser> voiceRoomUserList = baseMapper.selectList(queryWrapper);
-        if (voiceRoomUserList == null || voiceRoomUserList.isEmpty()) {
-            return;
-        }
-        List<Integer> idList =
-                voiceRoomUserList.stream().map(VoiceRoomUser::getId).collect(Collectors.toList());
-        baseMapper.deleteBatchIds(idList);
+        baseMapper.delete(queryWrapper);
         cleanMemberCount(roomId);
         cleanClickCount(roomId);
     }
@@ -91,7 +86,7 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
         if (StringUtils.isBlank(cursor)) {
             LambdaQueryWrapper<VoiceRoomUser> queryWrapper =
                     new LambdaQueryWrapper<VoiceRoomUser>()
-                            .eq(VoiceRoomUser::getRoomId,roomId)
+                            .eq(VoiceRoomUser::getRoomId, roomId)
                             .orderByDesc(VoiceRoomUser::getId)
                             .last(" limit " + limitSize);
             voiceRoomUserList = baseMapper.selectList(queryWrapper);
@@ -177,7 +172,6 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
     }
 
     @Override
-    @Transactional
     public VoiceRoomUser addVoiceRoomUser(String roomId, String uid) {
         VoiceRoom voiceRoom = voiceRoomService.findByRoomId(roomId);
         if (uid.equals(voiceRoom.getOwner())) {
@@ -192,6 +186,17 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
             save(voiceRoomUser);
             incrClickCount(roomId);
             incrMemberCount(roomId);
+            Map<String, Object> customExtensions = new HashMap<>();
+            customExtensions.put("room_id", voiceRoom.getRoomId());
+            try{
+              customExtensions.put("room_user",
+                        objectMapper.writeValueAsString(userService.getByUid(voiceRoom.getOwner())));
+            }catch (Exception e){
+                log.error("write user json failed | uid={}, roomId={}, e=", uid,
+                        roomId, e);
+            }
+            this.imApi.sendChatRoomCustomMessage(userService.getByUid(voiceRoom.getOwner()).getChatUid(), voiceRoom.getChatroomId(),
+                    CustomEventType.JOIN_VOICE_ROOM.getValue(), customExtensions, new HashMap<>());
         }
         return voiceRoomUser;
     }
@@ -209,8 +214,8 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
             VoiceRoomUser voiceRoomUser = findByRoomIdAndUid(roomId, uid);
             if (voiceRoomUser != null) {
                 micApplyUserService.deleteMicApply(uid, voiceRoom, Boolean.FALSE);
-                voiceRoomMicService.leaveMic(uid, voiceRoom.getChatroomId(),
-                        voiceRoomUser.getMicIndex(),voiceRoom.getRoomId());
+                voiceRoomMicService.leaveMic(userService.getByUid(uid), voiceRoom.getChatroomId(),
+                        voiceRoomUser.getMicIndex(), voiceRoom.getRoomId());
                 baseMapper.deleteById(voiceRoomUser);
                 decrMemberCount(roomId);
                 redisTemplate.delete(key(roomId, uid));
@@ -228,7 +233,6 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
     }
 
     @Override
-    @Transactional
     public void kickVoiceRoomUser(String roomId, String ownerUid, String kickUid) {
         VoiceRoom voiceRoom = voiceRoomService.findByRoomId(roomId);
         if (!ownerUid.equals(voiceRoom.getOwner())) {
@@ -240,8 +244,8 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
         VoiceRoomUser voiceRoomUser = findByRoomIdAndUid(roomId, kickUid);
         if (voiceRoomUser != null) {
             micApplyUserService.deleteMicApply(kickUid, voiceRoom, Boolean.FALSE);
-            voiceRoomMicService.leaveMic(kickUid, voiceRoom.getChatroomId(),
-                    voiceRoomUser.getMicIndex(),voiceRoom.getRoomId());
+            voiceRoomMicService.leaveMic(userService.getByUid(kickUid), voiceRoom.getChatroomId(),
+                    voiceRoomUser.getMicIndex(), voiceRoom.getRoomId());
             baseMapper.deleteById(voiceRoomUser);
             decrMemberCount(roomId);
             redisTemplate.delete(key(roomId, kickUid));
@@ -251,7 +255,6 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
     }
 
     @Override
-    @Transactional
     public void updateVoiceRoomUserMicIndex(String roomId, String uid, Integer micIndex) {
         if (micIndex == null) {
             return;
