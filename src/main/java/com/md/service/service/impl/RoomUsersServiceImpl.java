@@ -11,6 +11,7 @@ import com.md.service.repository.RoomUsersMapper;
 import com.md.service.service.RoomUsersService;
 import com.md.service.service.UsersService;
 import com.md.service.utils.AgoraentertainmentUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -30,6 +31,9 @@ public class RoomUsersServiceImpl extends ServiceImpl<RoomUsersMapper, RoomUsers
 
     @Resource
     private AgoraentertainmentUtils agoraentertainmentUtils;
+
+    @Resource
+    private RedisTemplate<String,Object> redisTemplate;
 
     @Override
     public void joinRoom(String roomNo, Integer userId, Integer seat, Integer joinSing) {
@@ -86,10 +90,12 @@ public class RoomUsersServiceImpl extends ServiceImpl<RoomUsersMapper, RoomUsers
     }
 
     @Override
-    public void outSeat(String roomNo, Integer userId) {
+    public void outSeat(String roomNo, Integer userId,String userNo) {
         RoomUsers roomUsers = baseMapper.selectOne(new LambdaQueryWrapper<RoomUsers>().
                 eq(RoomUsers::getRoomNo, roomNo).eq(RoomUsers::getUserId, userId));
         if(roomUsers != null){
+            String redisKey = "reviewVoice_"+ userNo+ ":" + roomNo + ":" + roomUsers.getOnSeat();
+            redisTemplate.delete(redisKey);
             //房主不能动
             if(roomUsers.getOnSeat().equals(0)){
                 return;
@@ -155,6 +161,11 @@ public class RoomUsersServiceImpl extends ServiceImpl<RoomUsersMapper, RoomUsers
             }
         }else{
             roomUsers.setIsVideoMuted(0);
+            try {
+                agoraentertainmentUtils.closeRecording(users.getId(),roomNo);
+            }catch (Exception e){
+                log.error("closeRecording error",e);
+            }
         }
         baseMapper.updateById(roomUsers);
     }

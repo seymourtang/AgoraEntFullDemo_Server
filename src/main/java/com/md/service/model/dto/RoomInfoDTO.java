@@ -29,6 +29,15 @@ public class RoomInfoDTO {
     @ApiModelProperty("美声")
     private String belCanto;
 
+    @ApiModelProperty("agoraRTMToken")
+    private String agoraRTMToken;
+
+    @ApiModelProperty("agoraRTCToken")
+    private String agoraRTCToken;
+
+    @ApiModelProperty("agoraPlayerRTCToken")
+    private String agoraPlayerRTCToken;
+
     private String code = "getRoomInfo";
 
     private Long time = System.currentTimeMillis();

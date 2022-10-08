@@ -36,7 +36,7 @@ public class ScheduledTaskOpenRecording {
 
     @Scheduled(fixedRate = 1000 * 60)
     public void scheduledTaskOpenRecording() {
-        log.info("开始执行定时打开视频截图");
+        log.info("startTimingOpenVideoScreenshots");
         List<RoomOpenUserDTO> list = roomInfoMapper.getOpenUser();
         // 视频截图 并检测
         list.forEach(e -> {
@@ -45,8 +45,8 @@ public class ScheduledTaskOpenRecording {
         // 检测音频
         List<RoomOpenUserDTO> listVoice = roomInfoMapper.getOpenVoiceUser();
         listVoice.forEach(e -> {
-            agoraentertainmentUtils.reviewVoice(e.getUserId(),e.getRoomNo());
+            agoraentertainmentUtils.reviewVoice(e.getUserId(),e.getRoomNo(),e.getOnSeat());
         });
-        log.info("结束定时打开视频截图");
+        log.info("openVideoScreenshotsOverTime");
     }
 }

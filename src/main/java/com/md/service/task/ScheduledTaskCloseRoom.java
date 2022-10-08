@@ -19,8 +19,8 @@ public class ScheduledTaskCloseRoom {
 
     @Scheduled(fixedRate = 1000 * 60)
     public void scheduledTaskCloseRoom() {
-        log.info("开始执行定时关闭房间任务");
+        log.info("start scheduledTaskCloseRoom");
         roomInfoService.searchRoomAndClose();
-        log.info("结束定时关闭房间任务");
+        log.info("start scheduledTaskOpenRecording");
     }
 }

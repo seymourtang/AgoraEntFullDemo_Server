@@ -129,7 +129,7 @@ CREATE TABLE `room_users` (
     `on_seat` int NOT NULL COMMENT '是否上麦 0 未上 1-8 在麦上的位置',
     `join_sing` int NOT NULL default  0 COMMENT '是否合唱 0 不合唱 1合唱',
     `is_video_muted` int NOT NULL default 0 COMMENT '是否开启摄像头 0 不合唱 1合唱',
-    `is_self_muted` int NOT NULL COMMENT '是否静音 0 不合唱 1合唱',
+    `is_self_muted` int NOT NULL default 0 COMMENT '是否静音 0 不合唱 1合唱',
     `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
     `updated_at` timestamp NULL DEFAULT NULL COMMENT '修改时间',
     `status` int NOT NULL DEFAULT '0',

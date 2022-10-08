@@ -37,7 +37,7 @@ public interface RoomUsersService extends IService<RoomUsers> {
      * @param roomNo
      * @param userId
      */
-    void outSeat(String roomNo,Integer userId);
+    void outSeat(String roomNo,Integer userId,String userNo);
 
     /**
      * 获取房间用户信息

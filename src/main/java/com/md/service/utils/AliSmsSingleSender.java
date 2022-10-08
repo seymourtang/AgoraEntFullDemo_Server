@@ -56,11 +56,13 @@ public class AliSmsSingleSender {
                     .setTemplateParam(param);
             RuntimeOptions runtime = new RuntimeOptions();
             SendSmsResponse sendSmsResponse = client.sendSmsWithOptions(sendSmsRequest, runtime);
-            log.info("send code result:{}", sendSmsResponse.body.getMessage());
+            log.info("sendCode result:{}", sendSmsResponse.body.getMessage());
+            log.info("sendCode code :{},result :{}",sendSmsResponse.getBody().getCode(),sendSmsResponse.getBody().toString());
             if (!sendSmsResponse.getBody().getCode().equals("OK")) {
                 throw new BaseException(ErrorCodeEnum.verification_code_sent_failure, ErrorCodeEnum.verification_code_sent_failure.getMessage());
             }
         } catch (Exception e) {
+            log.error("send code error",e);
             throw new BaseException(ErrorCodeEnum.verification_code_sent_failure, ErrorCodeEnum.verification_code_sent_failure.getMessage());
         }finally {
             rlock.unlock();

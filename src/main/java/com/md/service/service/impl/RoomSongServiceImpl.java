@@ -9,6 +9,7 @@ import com.md.service.common.SongStatus;
 import com.md.service.exception.BaseException;
 import com.md.service.model.dto.RoomSongInfoDTO;
 import com.md.service.model.dto.RtmSongDTO;
+import com.md.service.model.dto.UserInfo;
 import com.md.service.model.entity.RoomInfo;
 import com.md.service.model.entity.RoomSong;
 import com.md.service.model.entity.Songs;
@@ -23,10 +24,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -178,10 +176,15 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                     RoomSong roomSong = baseMapper.selectOne(new LambdaQueryWrapper<RoomSong>().eq(RoomSong::getRoomNo,form.getRoomNo()).
                             eq(RoomSong::getSongNo,form.getSongNo()).last("limit 1"));
                     roomSong.setChorusNo(form.getUserNo());
+
                     RtmSongDTO rtmSongDTO = new RtmSongDTO();
                     rtmSongDTO.setRoomNo(roomInfo.getRoomNo());
                     rtmSongDTO.setStatus(SongStatus.chorus.getCode());
 //                    rtmJavaClient.sendMessage(roomInfo.getRoomNo(), JsonUtil.toJsonString(rtmSongDTO));
+
+                    roomSong.setIsChorus(1);
+                    baseMapper.updateById(roomSong);
+
                 }
             }
         } catch (InterruptedException e) {
@@ -203,6 +206,7 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                         orderByAsc(RoomSong::getSort).
                         last("limit 1"));
                 mRoomSong.setIsChorus(0);
+                mRoomSong.setChorusNo("");
                 baseMapper.updateById(mRoomSong);
             }
         }catch (Exception e){
@@ -211,6 +215,20 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
             rlock.unlock();
         }
 
+    }
+
+    @Override
+    public void delChorus(String roomNo, String userNo) {
+        List<RoomSong> mRoomSong = baseMapper.selectList(new LambdaQueryWrapper<RoomSong>().
+                eq(RoomSong::getRoomNo,roomNo).
+                eq(RoomSong::getChorusNo,userNo));
+        if(CollectionUtils.isNotEmpty(mRoomSong)){
+            mRoomSong.forEach(e -> {
+                e.setIsChorus(0);
+                e.setChorusNo("");
+                baseMapper.updateById(e);
+            });
+        }
     }
 
     @Override
@@ -231,6 +249,7 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                 RoomSongInfoDTO roomSongInfoDTO = new RoomSongInfoDTO();
                 roomSongInfoDTO.setSongNo(e.getSongNo());
                 roomSongInfoDTO.setUserNo(e.getUserNo());
+                roomSongInfoDTO.setUserId(usersService.getUserByNo(e.getUserNo()).getId());
                 roomSongInfoDTO.setName(usersService.getUserByNo(e.getUserNo()).getName());
                 roomSongInfoDTO.setSort(e.getSort());
                 roomSongInfoDTO.setIsOriginal(e.getIsOriginal());
@@ -243,6 +262,10 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                     roomSongInfoDTO.setLyric(songMap.get(e.getSongNo()).getLyric());
                 }
                 roomSongInfoDTO.setChorusNo(e.getChorusNo());
+                if(StringUtils.isNoneBlank(e.getChorusNo())){
+                    roomSongInfoDTO.setChorusId(Optional.ofNullable(
+                            usersService.getUser(e.getChorusNo())).orElse(new UserInfo()).getId());
+                }
                 roomSongInfoDTO.setIsChorus(e.getIsChorus() == 1);
                 //存在歌词返回
                 if(StringUtils.isNoneBlank(roomSongInfoDTO.getLyric())){
@@ -282,6 +305,18 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                 eq(RoomSong::getSort,sort));
         if(roomSong != null){
             baseMapper.deleteById(roomSong);
+        }
+    }
+
+    @Override
+    public void delSong(String roomNo, String userNo) {
+        List<RoomSong> roomSong = baseMapper.selectList(new LambdaQueryWrapper<RoomSong>().
+                eq(RoomSong::getRoomNo,roomNo).
+                eq(RoomSong::getUserNo,userNo));
+        if(CollectionUtils.isNotEmpty(roomSong)){
+            roomSong.forEach(e -> {
+                baseMapper.deleteById(e);
+            });
         }
     }
 }

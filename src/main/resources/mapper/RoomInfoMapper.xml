@@ -10,7 +10,7 @@
           and ru.is_video_muted = 1
     </select>
     <select id="getOpenVoiceUser" resultType="com.md.service.model.dto.RoomOpenUserDTO">
-        select ri.room_no,ru.user_id
+        select ri.room_no,ru.user_id,ru.on_seat
         From room_info ri
                  left join room_users ru on ri.room_no = ru.room_no
         where ri.status = 0

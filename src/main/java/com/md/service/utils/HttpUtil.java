@@ -1,4 +1,5 @@
 package com.md.service.utils;
+
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
@@ -56,7 +57,7 @@ public class HttpUtil {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             }
         }
         return null;
@@ -105,7 +106,7 @@ public class HttpUtil {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             }
         }
         return null;
@@ -152,19 +153,10 @@ public class HttpUtil {
             try {
                 httpClient.close();
             } catch (IOException e) {
-                log.error(e.getMessage(),e);
+                log.error(e.getMessage(), e);
             }
         }
         return null;
-    }
-
-    public static void main(String[] argus) throws UnsupportedEncodingException {
-        String WECHAT_WORK_CROP_ID = "wwcbb98dbdfc68dbf2";
-        String WECHAT_WORK_AGENT_WORK_SECRET = "KC1OdRyYZ6fM70Fh-tiazYaYMCS9X2Nne-quRCVcUZE";
-
-        System.out.println(doGet("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + WECHAT_WORK_CROP_ID
-                + "&corpsecret=KC1OdRyYZ6fM70Fh-tiazYaYMCS9X2Nne-quRCVcUZE"));
-
     }
 
 }

@@ -36,4 +36,5 @@ public interface CommonKey {
      * 5分钟验证锁
      */
     String verificationCheckCodeTimesLock = "verification_check_code_times_lock:";
+
 }

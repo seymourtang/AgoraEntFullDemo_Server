@@ -51,6 +51,13 @@ public interface RoomSongService extends IService<RoomSong> {
     void cancelChorus(ChooseSongForm form);
 
     /**
+     * 删除合唱者
+     * @param roomNo
+     * @param userNo
+     */
+    void delChorus(String roomNo,String userNo);
+
+    /**
      * 获取房间歌曲信息
      * @param roomNo
      * @return
@@ -76,4 +83,11 @@ public interface RoomSongService extends IService<RoomSong> {
      * @param songNo
      */
     void delSong(String roomNo,String songNo,Integer sort);
+
+    /**
+     * 删除 此房间所有点歌曲
+     * @param roomNo
+     * @param userNo
+     */
+    void delSong(String roomNo,String userNo);
 }

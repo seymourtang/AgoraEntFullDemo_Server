@@ -32,7 +32,7 @@ public class RoomSongController {
     @ApiOperation("点歌")
     public BaseResult<String> chooseSong(ChooseSongForm form){
         log.info("chooseSong form : {}",form);
-         roomSongService.chooseSong(form);
+        roomSongService.chooseSong(form);
         return BaseResult.success();
     }
 

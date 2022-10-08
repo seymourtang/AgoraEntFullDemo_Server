@@ -23,6 +23,7 @@ import com.md.service.service.RoomUsersService;
 import com.md.service.service.UsersService;
 import com.md.service.utils.JsonUtil;
 import com.md.service.utils.MdStringUtils;
+import com.md.service.utils.RtmTokenBuilderSample;
 import com.md.service.utils.YiTuUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.security.Credential;
@@ -64,6 +65,9 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
 
     @Resource
     private YiTuUtils yiTuUtils;
+
+    @Resource
+    private RtmTokenBuilderSample rtmTokenBuilderSample;
 
     @Value("${room.info.close.time}")
     private Long closeTime;
@@ -171,7 +175,9 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         if(roomInfo == null){
             throw new BaseException(ErrorCodeEnum.no_room,ErrorCodeEnum.no_room.getMessage());
         }
-        roomUsersService.outSeat(roomNo,users.getId());
+        roomSongService.delSong(roomNo,userNo);
+        roomSongService.delChorus(roomNo,userNo);
+        roomUsersService.outSeat(roomNo,users.getId(),userNo);
     }
 
     @Override
@@ -225,8 +231,14 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         result.setBelCanto(roomInfo.getBelCanto());
         result.setRoomUserInfoDTOList(roomUsersService.roomUserInfoDTOList(roomNo,creator.getUserNo()));
         result.setRoomSongInfoDTOS(roomSongService.getRoomSongInfo(roomNo));
+        try {
+            result.setAgoraRTMToken(rtmTokenBuilderSample.getToken(users.getId(),roomNo));
+            result.setAgoraPlayerRTCToken(rtmTokenBuilderSample.getRtcToken(users.getId() * 10 + 1,roomNo));
+            result.setAgoraRTCToken(rtmTokenBuilderSample.getRtcToken(users.getId() ,roomNo));
+        } catch (Exception e) {
+           log.error("getToken error",e);
+        }
 //        rtmJavaClient.sendMessagePeer(JsonUtil.toJsonString(result),creator.getUserNo());
-
         return result;
     }
 
@@ -234,7 +246,9 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
     public void outRoom(String roomNo, String userNo) {
         roomUsersService.outRoom(roomNo,userNo);
         Users users = usersService.getUserByNo(userNo);
-        roomUsersService.outSeat(roomNo,users.getId());
+        roomUsersService.outSeat(roomNo,users.getId(),userNo);
+        roomSongService.delSong(roomNo,userNo);
+        roomSongService.delChorus(roomNo,userNo);
     }
 
     @Override
