@@ -9,10 +9,10 @@
         <relativePath/>
     </parent>
     <groupId>com.ktvOnlie</groupId>
-    <artifactId>ktvOnline</artifactId>
+    <artifactId>voiceRoom</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ktvOnline</name>
-    <description>ktvOnline</description>
+    <name>voiceRoom</name>
+    <description>voiceRoom</description>
 
     <properties>
         <java.version>1.8</java.version>
