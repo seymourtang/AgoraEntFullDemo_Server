@@ -33,5 +33,5 @@
      * spring.redis.url为redis连接URI,格式为 redis://username:password@host:port
    * 其他配置
      * 其他服务配置都有默认参数，如果你对Spring配置熟悉，可以按自己服务需求进行调整
-7. 在”研判中心“ -> "生命周期"中，双击package，开始打包，或在命令行中运行`mvn clean package -P dev`或`mvn clean packege -P prod`生成`voiceRoom-0.0.1-SNAPSHOT.jar`
+7. 在”研判中心“ -> "生命周期"中，双击package，开始打包，或在命令行中运行`mvn clean package -P dev`或`mvn clean packege -P prod` 在./voiceRoom/target目录下生成 `voiceRoom-0.0.1-SNAPSHOT.jar`
 8. 将目标jar上传至指定服务器，执行`nohup java -jar voiceRoom-0.0.1-SNAPSHOT.jar &` ，服务即可运行

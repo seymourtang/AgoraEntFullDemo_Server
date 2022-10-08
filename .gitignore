@@ -1,6 +1,6 @@
 *.jar
 *.class
-target/*
+target
 .idea
 *.iml
 logs
