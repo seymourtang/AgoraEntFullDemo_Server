@@ -321,7 +321,7 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
             customExtensions.put("mic_index", index.toString());
         }
         customExtensions.put("room_id", roomInfo.getRoomId());
-        this.imApi.sendChatRoomCustomMessage(ownerUser.getChatUid(), roomInfo.getChatroomId(),
+        this.imApi.sendUserCustomMessage(ownerUser.getChatUid(), userDTO.getChatUuid(),
                 CustomEventType.INVITE_SITE.getValue(), customExtensions, new HashMap<>());
     }
 
@@ -353,7 +353,7 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
                     userDTO, e);
         }
         customExtensions.put("room_id", roomInfo.getRoomId());
-        this.imApi.sendChatRoomCustomMessage(userDTO.getChatUid(), roomInfo.getChatroomId(),
+        this.imApi.sendUserCustomMessage(userDTO.getChatUid(), userService.getByUid(roomInfo.getOwner()).getUid(),
                 CustomEventType.INVITE_REFUSED.getValue(), customExtensions, new HashMap<>());
 
         return Boolean.TRUE;
