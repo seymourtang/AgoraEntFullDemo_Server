@@ -30,7 +30,9 @@
      * spring.datasource.username为MySQL数据库连接用户名
      * spring.datasource.password为MySQL数据库连接密码
    * 配置Redis连接信息
-     * spring.redis.url为redis连接URI,格式为 redis://username:password@host:port
+     * spring.redis.host为redis连接地址
+     * spring.redis.port为redis连接端口
+     * spring.redis.password为redis连接密码，如果为空则留空即可
    * 其他配置
      * 其他服务配置都有默认参数，如果你对Spring配置熟悉，可以按自己服务需求进行调整
 7. 在”研判中心“ -> "生命周期"中，双击package，开始打包，或在命令行中运行`mvn clean package -P dev`或`mvn clean packege -P prod` 在./voiceRoom/target目录下生成 `voiceRoom-0.0.1-SNAPSHOT.jar`
