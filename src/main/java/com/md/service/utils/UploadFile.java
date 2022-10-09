@@ -1,6 +1,6 @@
 package com.md.service.utils;
 
-import com.alibaba.druid.support.json.JSONUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
@@ -8,10 +8,10 @@ import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.ObjectListing;
 import com.aliyun.oss.model.PutObjectRequest;
+import com.md.service.config.RtmJavaClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,6 +45,9 @@ public class UploadFile {
 
     @Resource
     private YiTuUtils yiTuUtils;
+
+    @Resource
+    private RtmJavaClient rtmJavaClient;
 
     @Resource
     private RedisTemplate<String,Object> redisTemplate;;
@@ -100,7 +103,14 @@ public class UploadFile {
             log.info("keyPrefix：{}  sums size:{}",keyPrefix,sums.size());
             for (OSSObjectSummary s : sums) {
                 Thread.sleep(1000);
-                yiTuUtils.checkImage( "https://" + bucketName + "." + endpoint + "/" + s.getKey());
+                try{
+                    yiTuUtils.checkImage( "https://" + bucketName + "." + endpoint + "/" + s.getKey());
+                }catch (Exception e){
+                    rtmJavaClient.login("system_admin",roomNo);
+                    JSONObject object = new JSONObject();
+                    object.put("error","error");
+                    rtmJavaClient.sendMessagePeer(userNo,object.toString());
+                }
                 mark = s.getKey();
             }
             redisTemplate.opsForValue().set(keyPrefix,mark,7, TimeUnit.DAYS);

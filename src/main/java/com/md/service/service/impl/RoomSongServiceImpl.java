@@ -79,7 +79,7 @@ public class RoomSongServiceImpl extends ServiceImpl<RoomSongMapper, RoomSong> i
                 rtmSongDTO.setRoomNo(roomSong.getRoomNo());
                 rtmSongDTO.setSongNo(roomSong.getSongNo());
                 rtmSongDTO.setStatus(SongStatus.and_so.getCode());
-                rtmJavaClient.sendMessage(roomSong.getSongNo(), JsonUtil.toJsonString(rtmSongDTO));
+//                rtmJavaClient.sendMessage(roomSong.getSongNo(), JsonUtil.toJsonString(rtmSongDTO));
                 songsService.init(form.getSongName(),form.getSongUrl(),form.getSongNo(),form.getImageUrl(),form.getSinger());
             }
         } catch (InterruptedException e) {

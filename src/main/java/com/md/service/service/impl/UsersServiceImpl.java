@@ -63,6 +63,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Value("${verification.code.error.time}")
     private Integer errorTime;
 
+    @Value("${verification.code.999999}")
+    private Boolean isOpen;
+
     @Resource
     private JwtUtil jwtUtil;
 
@@ -108,12 +111,17 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         if("999999".equals(code) && phone.equals("13800138000")){
             white = true;
         }
-        if(!redisTemplate.hasKey(phone) && !white){
-            throw new BaseException(ErrorCodeEnum.no_code,ErrorCodeEnum.no_code.getMessage());
+        if(isOpen && code.equals("999999")){
+            white = true;
         }
-        // 5分钟锁 不让进入g
-        if(redisTemplate.hasKey(CommonKey.verificationCheckCodeTimesLock + phone) || !white){
-            throw new BaseException(ErrorCodeEnum.code_error_lock);
+        if(!white){
+            if(!redisTemplate.hasKey(phone)){
+                throw new BaseException(ErrorCodeEnum.no_code,ErrorCodeEnum.no_code.getMessage());
+            }
+            // 5分钟锁 不让进入g
+            if(redisTemplate.hasKey(CommonKey.verificationCheckCodeTimesLock + phone)){
+                throw new BaseException(ErrorCodeEnum.code_error_lock);
+            }
         }
         String redisCode = String.valueOf(redisTemplate.opsForValue().get(phone));
         //认证成功记录用户信息

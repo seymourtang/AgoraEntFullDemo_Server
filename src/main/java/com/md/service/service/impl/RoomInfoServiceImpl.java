@@ -158,7 +158,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
                     rtmRoomDTO.setStatus(RoomUserStatus.on_seat.getCode());
                     rtmRoomDTO.setUserNo(userNo);
                     rtmRoomDTO.setSeat(seat);
-                    rtmJavaClient.sendMessage(roomNo, JsonUtil.toJsonString(rtmRoomDTO));
+//                    rtmJavaClient.sendMessage(roomNo, JsonUtil.toJsonString(rtmRoomDTO));
                 }
             }
         } catch (InterruptedException e) {
@@ -205,7 +205,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         rtmRoomDTO.setRoomNo(roomInfo.getRoomNo());
         rtmRoomDTO.setStatus(RoomStatus.UPDATE_ROOM_INFO.getCode());
         rtmRoomDTO.setData(roomInfo);
-        rtmJavaClient.sendMessage(roomInfo.getRoomNo(),JsonUtil.toJsonString(rtmRoomDTO));
+//        rtmJavaClient.sendMessage(roomInfo.getRoomNo(),JsonUtil.toJsonString(rtmRoomDTO));
     }
 
     @Override
