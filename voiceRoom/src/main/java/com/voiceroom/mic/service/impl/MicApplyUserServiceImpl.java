@@ -82,7 +82,7 @@ public class MicApplyUserServiceImpl extends ServiceImpl<MicApplyUserMapper, Mic
                 customExtensions.put("mic_index", String.valueOf(micIndex));
                 customExtensions.put("room_id", roomInfo.getRoomId());
                 this.imApi
-                        .sendChatRoomCustomMessage(applyUser.getChatUid(), roomInfo.getChatroomId(),
+                        .sendUserCustomMessage(applyUser.getChatUid(), userService.getByUid(roomInfo.getOwner()).getChatUid(),
                                 CustomEventType.APPLY_SITE.getValue(), customExtensions,
                                 new HashMap<>());
                 return Boolean.TRUE;
@@ -123,7 +123,7 @@ public class MicApplyUserServiceImpl extends ServiceImpl<MicApplyUserMapper, Mic
                         applyUser, e);
             }
             customExtensions.put("room_id", roomInfo.getRoomId());
-            this.imApi.sendChatRoomCustomMessage(applyUser.getChatUid(), roomInfo.getChatroomId(),
+            this.imApi.sendUserCustomMessage(applyUser.getChatUid(), userService.getByUid(roomInfo.getOwner()).getChatUid(),
                     CustomEventType.APPLY_CANCEL.getValue(), customExtensions, new HashMap<>());
         }
 
