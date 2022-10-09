@@ -6,6 +6,7 @@ import lombok.Getter;
 public enum ErrorCodeEnum {
 
     system_error(10000, "系统异常，请稍后再试"),
+    no_authorization(401, "无用户权限"),
     /**
      * 用户
      */

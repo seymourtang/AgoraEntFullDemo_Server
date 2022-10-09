@@ -23,6 +23,9 @@ public class JwtUtil {
     @Value("${jwt.token.exp-time}")
     private String exTime;
 
+    @Value("${jwt.token.expiration}")
+    private String jwtExpiration;
+
     @Resource
     private RedisTemplate redisTemplate;
 
@@ -56,7 +59,7 @@ public class JwtUtil {
                 .signWith(signatureAlgorithm, key);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR) + 10);
+        calendar.set(Calendar.MONTH, calendar.get(Calendar.YEAR) + Integer.parseInt(jwtExpiration));
         Date exp = calendar.getTime();
         builder.setExpiration(exp);
         String result = builder.compact();

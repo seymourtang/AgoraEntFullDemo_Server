@@ -23,11 +23,11 @@ public class UserInfo {
     @ApiModelProperty("用户头像")
     private String headUrl;
 
-    @ApiModelProperty("用户性别 w 女 m 男 x 未知")
-    private String sex;
+//    @ApiModelProperty("用户性别 w 女 m 男 x 未知")
+//    private String sex;
 
-    @ApiModelProperty("用户手机号")
-    private String mobile;
+//    @ApiModelProperty("用户手机号")
+//    private String mobile;
 
     @ApiModelProperty("用户状态")
     private Integer status;

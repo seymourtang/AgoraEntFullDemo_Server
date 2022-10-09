@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.md.service.model.BaseResult;
+import com.md.service.model.BaseUser;
 import com.md.service.model.dto.UserInfo;
 import com.md.service.model.entity.Users;
 import com.md.service.model.form.UpdateUserInfoForm;
@@ -32,4 +33,6 @@ public interface UsersService extends IService<Users> {
     String getUserNoById(Integer id);
 
     IPage<Users> userList(Page form);
+
+    void checkUserToken(BaseUser baseUser,String userNo);
 }

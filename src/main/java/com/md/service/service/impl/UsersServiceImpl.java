@@ -13,6 +13,7 @@ import com.md.service.common.RoomStatus;
 import com.md.service.common.UserRandomInfo;
 import com.md.service.exception.BaseException;
 import com.md.service.model.BaseResult;
+import com.md.service.model.BaseUser;
 import com.md.service.model.dto.UserInfo;
 import com.md.service.model.entity.RoomInfo;
 import com.md.service.model.entity.RoomUsers;
@@ -54,9 +55,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Value("${verification.send.code.times}")
     private Integer sendMessageTimes;
 
+    // 锁时间
     @Value("${verification.code.error.lock}")
     private Integer errorLock;
 
+    // 验证码 错误次数
     @Value("${verification.code.error.time}")
     private Integer errorTime;
 
@@ -100,12 +103,21 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public BaseResult<UserInfo> login(String phone, String code) {
         UserInfo userInfo = new UserInfo();
-        if(!redisTemplate.hasKey(phone) && !"999999".equals(code)){
+        //白名单
+        Boolean white = false;
+        if("999999".equals(code) && phone.equals("13800138000")){
+            white = true;
+        }
+        if(!redisTemplate.hasKey(phone) && !white){
             throw new BaseException(ErrorCodeEnum.no_code,ErrorCodeEnum.no_code.getMessage());
+        }
+        // 5分钟锁 不让进入g
+        if(redisTemplate.hasKey(CommonKey.verificationCheckCodeTimesLock + phone) || !white){
+            throw new BaseException(ErrorCodeEnum.code_error_lock);
         }
         String redisCode = String.valueOf(redisTemplate.opsForValue().get(phone));
         //认证成功记录用户信息
-        if(StringUtils.isNoneEmpty(code) && code.equals(redisCode) || "999999".equals(code)){
+        if((StringUtils.isNoneEmpty(code) && code.equals(redisCode)) || white){
             Users users = this.baseMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getMobile,phone));
             if(users == null){
                 users = new Users();
@@ -121,11 +133,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             Long times = redisTemplate.opsForValue().increment(CommonKey.verificationCheckCodeTimes + phone);
             redisTemplate.expire(CommonKey.verificationCheckCodeTimes + phone ,MdStringUtils.getRemainSecondsOneDay(),TimeUnit.SECONDS);
             if(redisTemplate.hasKey(CommonKey.verificationCheckCodeTimes + phone)){
-                if(times.intValue() >= errorLock){
+                if(times.intValue() >= errorTime){
+                    // 超过5次 删除code 防止暴力破解
+                    redisTemplate.delete(phone);
                     if(redisTemplate.hasKey(CommonKey.verificationCheckCodeTimesLock + phone)){
                         throw new BaseException(ErrorCodeEnum.code_error_lock);
                     }else{
-                        redisTemplate.opsForValue().set(CommonKey.verificationCheckCodeTimesLock + phone,"1",errorTime, TimeUnit.MINUTES);
+                        redisTemplate.opsForValue().set(CommonKey.verificationCheckCodeTimesLock + phone,"1",errorLock, TimeUnit.MINUTES);
                     }
                 }
             }
@@ -161,7 +175,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         Users users = getUserByNo(no);
         baseMapper.deleteById(users);
         //注销后 全部下座位
-        roomUsersService.update(new LambdaUpdateWrapper<RoomUsers>().eq(RoomUsers::getUserId,users).
+        roomUsersService.update(new LambdaUpdateWrapper<RoomUsers>().eq(RoomUsers::getUserId,users.getId()).
                 set(RoomUsers::getOnSeat,0).set(RoomUsers::getDeletedAt, LocalDateTime.now()));
         //关闭所有房间
         roomInfoService.update(new LambdaUpdateWrapper<RoomInfo>().eq(RoomInfo::getCreator,users.getId())
@@ -207,4 +221,17 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 eq(Users::getStatus, RoomStatus.OPEN).orderByDesc(Users::getCreatedAt));
         return list;
     }
+
+    @Override
+    public void checkUserToken(BaseUser baseUser,String userNo) {
+        if(baseUser != null && StringUtils.isNoneBlank(userNo)){
+            if(!baseUser.getUserNo().equals(userNo)){
+                throw new BaseException(ErrorCodeEnum.no_authorization,ErrorCodeEnum.no_authorization.getMessage());
+            }
+        }else{
+            throw new BaseException(ErrorCodeEnum.no_authorization,ErrorCodeEnum.no_authorization.getMessage());
+        }
+    }
+
+
 }

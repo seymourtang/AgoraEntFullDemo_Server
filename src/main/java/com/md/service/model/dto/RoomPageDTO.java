@@ -17,8 +17,8 @@ public class RoomPageDTO {
     @ApiModelProperty("是否公开 0 公开 1加密")
     private Integer isPrivate;
 
-    @ApiModelProperty("密码")
-    private String password;
+//    @ApiModelProperty("密码")
+//    private String password;
 
     @ApiModelProperty("房间唯一标识")
     private String roomNo;
