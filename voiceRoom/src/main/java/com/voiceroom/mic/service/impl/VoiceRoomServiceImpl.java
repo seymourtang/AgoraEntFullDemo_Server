@@ -123,7 +123,7 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
             if (type != null) {
                 queryWrapper.eq(VoiceRoom::getType, type);
             }
-            queryWrapper.orderByDesc(VoiceRoom::getCreatedAt)
+            queryWrapper.orderByDesc(VoiceRoom::getId)
                     .last(" limit " + limitSize);
             voiceRoomList = baseMapper.selectList(queryWrapper);
         } else {
@@ -137,7 +137,7 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
                 queryWrapper.eq(VoiceRoom::getType, type);
             }
             queryWrapper.le(VoiceRoom::getId, id)
-                    .orderByDesc(VoiceRoom::getCreatedAt)
+                    .orderByDesc(VoiceRoom::getId)
                     .last(" limit " + limitSize);
             voiceRoomList = baseMapper.selectList(queryWrapper);
         }
