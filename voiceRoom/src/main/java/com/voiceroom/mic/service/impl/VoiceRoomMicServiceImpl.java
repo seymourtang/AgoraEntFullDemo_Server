@@ -321,7 +321,7 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
             customExtensions.put("mic_index", index.toString());
         }
         customExtensions.put("room_id", roomInfo.getRoomId());
-        this.imApi.sendUserCustomMessage(ownerUser.getChatUid(), userDTO.getChatUuid(),
+        this.imApi.sendUserCustomMessage(ownerUser.getChatUid(), userDTO.getChatUid(),
                 CustomEventType.INVITE_SITE.getValue(), customExtensions, new HashMap<>());
     }
 

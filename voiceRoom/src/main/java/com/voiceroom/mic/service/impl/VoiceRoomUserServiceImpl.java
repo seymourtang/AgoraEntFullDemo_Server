@@ -182,14 +182,15 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
             incrMemberCount(roomId);
             Map<String, Object> customExtensions = new HashMap<>();
             customExtensions.put("room_id", voiceRoom.getRoomId());
+            UserDTO joinUser=userService.getByUid(uid);
             try{
               customExtensions.put("room_user",
-                        objectMapper.writeValueAsString(userService.getByUid(voiceRoom.getOwner())));
+                        objectMapper.writeValueAsString(joinUser));
             }catch (Exception e){
                 log.error("write user json failed | uid={}, roomId={}, e=", uid,
                         roomId, e);
             }
-            this.imApi.sendChatRoomCustomMessage(userService.getByUid(voiceRoom.getOwner()).getChatUid(), voiceRoom.getChatroomId(),
+            this.imApi.sendChatRoomCustomMessage(joinUser.getChatUid(), voiceRoom.getChatroomId(),
                     CustomEventType.JOIN_VOICE_ROOM.getValue(), customExtensions, new HashMap<>());
         }
         return voiceRoomUser;
