@@ -47,16 +47,6 @@ class ChannelListener implements RtmChannelListener {
         System.out.println("member " + account + " lefted the channel "
                 + channel_);
     }
-
-    @Override
-    public void onImageMessageReceived(RtmImageMessage message, RtmChannelMember fromMember) {
-
-    }
-
-    @Override
-    public void onFileMessageReceived(RtmFileMessage message, RtmChannelMember fromMember) {
-
-    }
 }
 
 public class RtmJavaDemo {
@@ -87,27 +77,12 @@ public class RtmJavaDemo {
                         }
 
                         @Override
+                        public void onTokenPrivilegeWillExpire() {
+
+                        }
+
+                        @Override
                         public void onPeersOnlineStatusChanged(Map<String, Integer> peersStatus) {
-                        }
-
-                        @Override
-                        public void onImageMessageReceivedFromPeer(RtmImageMessage message, String peerId) {
-
-                        }
-
-                        @Override
-                        public void onFileMessageReceivedFromPeer(RtmFileMessage message, String peerId) {
-
-                        }
-
-                        @Override
-                        public void onMediaUploadingProgress(RtmMediaOperationProgress progress, long requestId) {
-
-                        }
-
-                        @Override
-                        public void onMediaDownloadingProgress(RtmMediaOperationProgress progress, long requestId) {
-
                         }
                     });
         } catch (Exception e) {

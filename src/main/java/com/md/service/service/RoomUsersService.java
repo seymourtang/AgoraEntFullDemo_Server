@@ -65,12 +65,12 @@ public interface RoomUsersService extends IService<RoomUsers> {
      * @param roomNo
      * @param userNo
      */
-    void isVideoMuted(String roomNo,String userNo);
+    void isVideoMuted(String roomNo,String userNo,Integer isOpen);
 
     /**
      * 是否静音
      * @param roomNo
      * @param userNo
      */
-    void isSelfMuted(String roomNo,String userNo);
+    void isSelfMuted(String roomNo,String userNo,Integer isOpen);
 }

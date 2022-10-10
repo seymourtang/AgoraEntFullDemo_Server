@@ -148,11 +148,11 @@ public class RoomUsersServiceImpl extends ServiceImpl<RoomUsersMapper, RoomUsers
     }
 
     @Override
-    public void isVideoMuted(String roomNo, String userNo) {
+    public void isVideoMuted(String roomNo, String userNo,Integer isOpen) {
         Users users = usersService.getUserByNo(userNo);
         RoomUsers roomUsers = baseMapper.selectOne(new LambdaQueryWrapper<RoomUsers>().eq(RoomUsers::getRoomNo,roomNo).
                 eq(RoomUsers::getUserId,users.getId()).last("limit 1"));
-        if(roomUsers.getIsVideoMuted() == 0){
+        if(isOpen.equals(1)){
             roomUsers.setIsVideoMuted(1);
             try {
                 agoraentertainmentUtils.openRecording(users.getId(),roomNo);
@@ -171,11 +171,11 @@ public class RoomUsersServiceImpl extends ServiceImpl<RoomUsersMapper, RoomUsers
     }
 
     @Override
-    public void isSelfMuted(String roomNo, String userNo) {
+    public void isSelfMuted(String roomNo, String userNo,Integer isOpen) {
         Users users = usersService.getUserByNo(userNo);
         RoomUsers roomUsers = baseMapper.selectOne(new LambdaQueryWrapper<RoomUsers>().eq(RoomUsers::getRoomNo,roomNo).
                 eq(RoomUsers::getUserId,users.getId()).last("limit 1"));
-        if(roomUsers.getIsSelfMuted() == 0){
+        if(isOpen.equals(1)){
             roomUsers.setIsSelfMuted(1);
         }else{
             roomUsers.setIsSelfMuted(0);

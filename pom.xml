@@ -162,6 +162,8 @@
             <groupId>io.agora.rtm</groupId>
             <artifactId>agora-rtm-sdk</artifactId>
             <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/agora_rtm.jar</systemPath>
         </dependency>
 
 
@@ -294,6 +296,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 包含scope为system -->
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
         </plugins>
     </build>

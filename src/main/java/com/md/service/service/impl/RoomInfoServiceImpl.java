@@ -215,12 +215,14 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
         if(roomInfo == null){
             throw new BaseException(ErrorCodeEnum.no_room);
         }
-        if(roomInfo.getIsPrivate().equals(1)){
-            if(!roomInfo.getPassword().equals(password)){
-                throw new BaseException(ErrorCodeEnum.password_is_not_correct);
+        Users users = usersService.getUserByNo(userNo);
+        if(!users.getId().equals(roomInfo.getCreator())){
+            if(roomInfo.getIsPrivate().equals(1)){
+                if(!roomInfo.getPassword().equals(password)){
+                    throw new BaseException(ErrorCodeEnum.password_is_not_correct);
+                }
             }
         }
-        Users users = usersService.getUserByNo(userNo);
         roomUsersService.joinRoom(roomInfo.getRoomNo(),users.getId(),-1,0);
         Users creator = usersService.getById(roomInfo.getCreator());
         result.setName(roomInfo.getName());

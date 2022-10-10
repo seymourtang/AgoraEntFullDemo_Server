@@ -59,7 +59,7 @@ public class JwtUtil {
                 .signWith(signatureAlgorithm, key);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) + Integer.parseInt(jwtExpiration));
+        calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + Integer.parseInt(jwtExpiration));
         Date exp = calendar.getTime();
         builder.setExpiration(exp);
         String result = builder.compact();

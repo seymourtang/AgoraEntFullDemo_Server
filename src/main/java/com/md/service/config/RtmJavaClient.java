@@ -1,6 +1,5 @@
 package com.md.service.config;
 
-import com.md.service.common.CommonKey;
 import com.md.service.service.RoomInfoService;
 import com.md.service.utils.RtmTokenBuilderSample;
 import io.agora.rtm.*;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +24,8 @@ public class RtmJavaClient {
 
     private RtmClient mRtmClient;
 
+    private RtmChannel mRtmChannel;
+
     @Resource
     private RedisTemplate redisTemplate;
 
@@ -33,8 +35,11 @@ public class RtmJavaClient {
     @Resource
     private RtmTokenBuilderSample rtmTokenBuilderSample;
 
+
+    private boolean loginStatus = false;
+
     @PostConstruct
-    public RtmClient init(){
+    public void init(){
         try {
             mRtmClient = RtmClient.createInstance(appId,
                     new RtmClientListener() {
@@ -53,36 +58,21 @@ public class RtmJavaClient {
                         public void onTokenExpired() {
                         }
                         @Override
+                        public void onTokenPrivilegeWillExpire() {
+                        }
+                        @Override
                         public void onPeersOnlineStatusChanged(Map<String, Integer> peersStatus) {
                         }
-                        @Override
-                        public void onImageMessageReceivedFromPeer(RtmImageMessage message, String peerId) {
-
-                        }
-                        @Override
-                        public void onFileMessageReceivedFromPeer(RtmFileMessage message, String peerId) {
-
-                        }
-                        @Override
-                        public void onMediaUploadingProgress(RtmMediaOperationProgress progress, long requestId) {
-
-                        }
-                        @Override
-                        public void onMediaDownloadingProgress(RtmMediaOperationProgress progress, long requestId) {
-
-                        }
                     });
-            login("system_admin");
         } catch (Exception e) {
             System.out.println("Rtm sdk init fatal error!");
             throw new RuntimeException("Need to check rtm sdk init process");
         }
-        return mRtmClient;
     }
 
     public void login(String userNo,String channel){
         try {
-            mRtmClient.login(rtmTokenBuilderSample.getRtcToken(99876500,channel),userNo, new ResultCallback<Void>() {
+            mRtmClient.login(rtmTokenBuilderSample.getToken(Integer.parseInt(userNo),channel),userNo, new ResultCallback<Void>() {
                 @Override
                 public void onSuccess(Void responseInfo) {
     //                redisTemplate.opsForValue().set(CommonKey.login_status + userNo,1);
@@ -90,25 +80,24 @@ public class RtmJavaClient {
                     RtmChannel mRtmChannel = mRtmClient.createChannel(channel,
                             new ChannelListener(channel));
                     if (mRtmChannel == null) {
-                        System.out.println("channel created failed!");
+                        log.info("channel created failed!");
                         return;
                     }
                     mRtmChannel.join(new ResultCallback<Void>() {
                         @Override
                         public void onSuccess(Void responseInfo) {
-                            System.out.println("join channel success!");
+                            log.info("join channel success!");
                         }
                         @Override
                         public void onFailure(ErrorInfo errorInfo) {
-                            System.out.println("join channel failure! errorCode = "
-                                    + errorInfo.getErrorCode());
+                            log.info("join channel failure! errorCode {}" ,errorInfo.getErrorCode());
                         }
                     });
                 }
                 @Override
                 public void onFailure(ErrorInfo errorInfo) {
     //                redisTemplate.opsForValue().set(CommonKey.login_status + userNo,0);
-                    System.out.println("login failure!");
+                    log.info("login failure!");
                 }
             });
         } catch (Exception e) {
@@ -117,16 +106,24 @@ public class RtmJavaClient {
     }
 
     public void login(String userNo){
-        mRtmClient.login(null,userNo, new ResultCallback<Void>() {
-            @Override
-            public void onSuccess(Void responseInfo) {
-                System.out.println("login success!");
-            }
-            @Override
-            public void onFailure(ErrorInfo errorInfo) {
-                System.out.println("login failure!");
-            }
-        });
+        if(loginStatus){
+            return;
+        }
+        try {
+            mRtmClient.login(rtmTokenBuilderSample.getToken(Integer.parseInt(userNo),""),userNo, new ResultCallback<Void>() {
+                @Override
+                public void onSuccess(Void responseInfo) {
+                    loginStatus = true;
+                    System.out.println("login success!");
+                }
+                @Override
+                public void onFailure(ErrorInfo errorInfo) {
+                    System.out.println("login failure!");
+                }
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -150,64 +147,91 @@ public class RtmJavaClient {
     }
 
     public void joinRoom(String channel){
-        RtmChannel mRtmChannel = mRtmClient.createChannel(channel,
-                new ChannelListener(channel));
+        log.info("joinRoom---------");
+        mRtmChannel = mRtmClient.createChannel(channel,new ChannelListener(channel));
+        log.info("joinRoom---------{}",mRtmChannel);
         if (mRtmChannel == null) {
-            System.out.println("channel created failed!");
+            log.info("channel created failed!");
             return;
         }
         mRtmChannel.join(new ResultCallback<Void>() {
             @Override
             public void onSuccess(Void responseInfo) {
-                System.out.println("join channel success!");
+                log.info("join channel success!");
             }
-
             @Override
             public void onFailure(ErrorInfo errorInfo) {
-                System.out.println("join channel failure! errorCode = "
-                        + errorInfo.getErrorCode());
+                log.info("join channel failure! errorCode = {}", errorInfo.getErrorCode());
             }
         });
     }
 
     public void closeRoom(String channel){
-        RtmChannel mRtmChannel = mRtmClient.createChannel(channel,
-                new ChannelListener(channel));
+        mRtmChannel = mRtmClient.createChannel(channel,new ChannelListener(channel));
         if (mRtmChannel == null) {
-            System.out.println("channel created failed!");
+            log.info("channel created failed!");
             return;
         }
         mRtmChannel.leave(new ResultCallback<Void>(){
             @Override
             public void onSuccess(Void responseInfo) {
-                System.out.println("leave channel success!");
+                log.info("leave channel success!");
             }
             @Override
             public void onFailure(ErrorInfo errorInfo) {
-                System.out.println("leave channel error!");
+                log.info("leave channel error!");
             }
         });
     }
 
     public void sendMessage(String channel,String msg){
-        RtmChannel mRtmChannel = mRtmClient.createChannel(channel,
-                new ChannelListener(channel));
+        mRtmChannel = mRtmClient.createChannel(channel, new ChannelListener(channel));
         if (mRtmChannel == null) {
            log.info("channel created failed!");
             return;
         }
-        RtmMessage message = mRtmClient.createMessage();
-        message.setText(msg);
-        mRtmChannel.sendMessage(message, new ResultCallback<Void>() {
+        mRtmChannel.join(new ResultCallback<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                log.info("sendMessage channel:{},msg:{}",channel,msg);
+            public void onSuccess(Void responseInfo) {
+                RtmMessage message = mRtmClient.createMessage();
+                message.setText("send");
+                message.setRawMessage(msg.getBytes(StandardCharsets.UTF_8));
+                mRtmChannel.sendMessage(message, new ResultCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mRtmChannel.leave(new ResultCallback<Void>(){
+                            @Override
+                            public void onSuccess(Void responseInfo) {
+                                log.info("leave channel success!");
+                            }
+                            @Override
+                            public void onFailure(ErrorInfo errorInfo) {
+                                log.info("leave channel error!");
+                            }
+                        });
+                        log.info("sendMessage channel:{},msg:{}",channel,msg);
+                    }
+                    @Override
+                    public void onFailure(ErrorInfo errorInfo) {
+                        mRtmChannel.leave(new ResultCallback<Void>(){
+                            @Override
+                            public void onSuccess(Void responseInfo) {
+                                log.info("leave channel success!");
+                            }
+                            @Override
+                            public void onFailure(ErrorInfo errorInfo) {
+                                log.info("leave channel error!");
+                            }
+                        });
+                        final int errorCode = errorInfo.getErrorCode();
+                        log.info("Send Message to channel failed, erroCode = " + errorCode);
+                    }
+                });
+                log.info("join channel success!");
             }
             @Override
             public void onFailure(ErrorInfo errorInfo) {
-                final int errorCode = errorInfo.getErrorCode();
-                log.info("Send Message to channel failed, erroCode = "
-                        + errorCode);
+                log.info("join channel failure! errorCode = {}", errorInfo.getErrorCode());
             }
         });
     }
@@ -219,16 +243,18 @@ public class RtmJavaClient {
         mRtmClient.sendMessageToPeer(userNo,message,option,new ResultCallback<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                log.info("sendMessagePeer sucess");
             }
             @Override
             public void onFailure(ErrorInfo errorInfo) {
                 final int errorCode = errorInfo.getErrorCode();
-                System.out.println("Send Message to channel failed, erroCode = "
+               log.info("Send Message to channel failed, erroCode = "
                         + errorCode);
             }
         });
     }
 }
+
 class ChannelListener implements RtmChannelListener {
     private String channel_;
 
@@ -265,15 +291,5 @@ class ChannelListener implements RtmChannelListener {
         String account = member.getUserId();
         System.out.println("member " + account + " lefted the channel "
                 + channel_);
-    }
-
-    @Override
-    public void onImageMessageReceived(RtmImageMessage message, RtmChannelMember fromMember) {
-
-    }
-
-    @Override
-    public void onFileMessageReceived(RtmFileMessage message, RtmChannelMember fromMember) {
-
     }
 }

@@ -27,15 +27,15 @@ public class RoomUsersController {
 
     @GetMapping("/openCamera")
     @ApiOperation("开摄像头")
-    public BaseResult<String> isVideoMuted(String roomNo,String userNo){
-        roomUsersService.isVideoMuted(roomNo,userNo);
+    public BaseResult<String> isVideoMuted(String roomNo,String userNo,Integer setStatus){
+        roomUsersService.isVideoMuted(roomNo,userNo,setStatus);
         return BaseResult.success();
     }
 
     @GetMapping("/ifQuiet")
     @ApiOperation("是否静音")
-    public BaseResult<String> isSelfMuted(String roomNo,String userNo){
-        roomUsersService.isSelfMuted(roomNo,userNo);
+    public BaseResult<String> isSelfMuted(String roomNo,String userNo,Integer setStatus){
+        roomUsersService.isSelfMuted(roomNo,userNo,setStatus);
         return BaseResult.success();
     }
 }

@@ -9,6 +9,8 @@ import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.ObjectListing;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.md.service.config.RtmJavaClient;
+import com.md.service.model.dto.UserInfo;
+import com.md.service.service.UsersService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -48,6 +50,9 @@ public class UploadFile {
 
     @Resource
     private RtmJavaClient rtmJavaClient;
+
+    @Resource
+    private UsersService usersService;
 
     @Resource
     private RedisTemplate<String,Object> redisTemplate;;
@@ -106,10 +111,14 @@ public class UploadFile {
                 try{
                     yiTuUtils.checkImage( "https://" + bucketName + "." + endpoint + "/" + s.getKey());
                 }catch (Exception e){
-                    rtmJavaClient.login("system_admin",roomNo);
+                    rtmJavaClient.login("99999999");
+                    UserInfo userInfo = usersService.getUser(userNo);
                     JSONObject object = new JSONObject();
-                    object.put("error","error");
-                    rtmJavaClient.sendMessagePeer(userNo,object.toString());
+                    object.put("userNo",userInfo.getUserNo());
+                    object.put("messageType","20");
+                    object.put("roomNo",roomNo);
+                    object.put("reason","audit fail");
+                    rtmJavaClient.sendMessage(roomNo,object.toString());
                 }
                 mark = s.getKey();
             }
