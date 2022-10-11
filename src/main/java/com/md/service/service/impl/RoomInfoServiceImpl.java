@@ -11,6 +11,7 @@ import com.md.service.common.RoomStatus;
 import com.md.service.common.RoomUserStatus;
 import com.md.service.config.RtmJavaClient;
 import com.md.service.exception.BaseException;
+import com.md.service.model.BaseUser;
 import com.md.service.model.dto.RoomInfoDTO;
 import com.md.service.model.dto.RoomPageDTO;
 import com.md.service.model.dto.RtmRoomDTO;
@@ -169,10 +170,14 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
     }
 
     @Override
-    public void outSeat(String roomNo, String userNo) {
+    public void outSeat(String roomNo, String userNo, BaseUser baseUser) {
         Users users = usersService.getUserByNo(userNo);
+        Users creatorUsers = usersService.getUserByNo(baseUser.getUserNo());
         RoomInfo roomInfo = baseMapper.selectOne(new LambdaQueryWrapper<RoomInfo>().
                 eq(RoomInfo::getStatus, RoomStatus.OPEN.getCode()).eq(RoomInfo::getRoomNo,roomNo));
+        if(!roomInfo.getCreator().equals(creatorUsers.getId())){
+            usersService.checkUserToken(baseUser,userNo);
+        }
         if(roomInfo == null){
             throw new BaseException(ErrorCodeEnum.no_room,ErrorCodeEnum.no_room.getMessage());
         }

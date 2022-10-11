@@ -126,7 +126,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         String redisCode = String.valueOf(redisTemplate.opsForValue().get(phone));
         //认证成功记录用户信息
         if((StringUtils.isNoneEmpty(code) && code.equals(redisCode)) || white){
-            Users users = this.baseMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getMobile,phone));
+            Users users = this.baseMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getMobile,phone).last("limit 1"));
             if(users == null){
                 users = new Users();
                 users.setMobile(phone);

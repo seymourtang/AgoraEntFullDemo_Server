@@ -96,9 +96,8 @@ public class RoomInfoController extends BaseController{
     @GetMapping("/outSeat")
     @ApiOperation("下麦")
     public BaseResult<String> outSeat(String roomNo,String userNo){
-        usersService.checkUserToken(getBaseUser(),userNo);
         log.info("outSeat roomNo : {},userNo:{},seat:{}",roomNo);
-        roomInfoService.outSeat(roomNo,userNo);
+        roomInfoService.outSeat(roomNo,userNo,getBaseUser());
         return BaseResult.success();
     }
 

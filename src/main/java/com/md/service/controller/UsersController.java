@@ -59,6 +59,7 @@ public class UsersController extends BaseController{
     @ApiOperation("修改用户信息")
     public BaseResult<UserInfo> update(@RequestBody UpdateUserInfoForm form){
         log.info("update form : {}",form);
+        usersService.checkUserToken(getBaseUser(),form.getUserNo());
         BaseResult<UserInfo> result = usersService.updateInfo(form);
         log.info("update result :{}",result);
         return result;

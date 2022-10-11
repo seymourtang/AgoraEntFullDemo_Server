@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.md.service.model.BaseUser;
 import com.md.service.model.dto.RoomInfoDTO;
 import com.md.service.model.dto.RoomPageDTO;
 import com.md.service.model.entity.RoomInfo;
@@ -47,7 +48,7 @@ public interface RoomInfoService extends IService<RoomInfo> {
      * @param roomNo
      * @param userNo
      */
-    void outSeat(String roomNo,String userNo);
+    void outSeat(String roomNo, String userNo, BaseUser baseUser);
 
     /**
      * 修改房间信息
