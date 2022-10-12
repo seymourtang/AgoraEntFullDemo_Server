@@ -105,6 +105,7 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
             throw e;
         }
         incrRoomCountByType(voiceRoom.getType());
+        initMemberCount(voiceRoom.getRoomId());
         return voiceRoom;
     }
 
@@ -283,6 +284,15 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
         } catch (Exception e) {
             log.error("get room member count failed | roomId={}, err=", roomId, e);
             return 0L;
+        }
+    }
+
+    public void initMemberCount(String roomId) {
+        String key = String.format("room:voice:%s:clickCount", roomId);
+        try {
+            redisTemplate.opsForValue().set(key, String.valueOf(3));
+        } catch (Exception e) {
+            log.error("get room member count failed | roomId={}, err=", roomId, e);
         }
     }
 

@@ -70,7 +70,7 @@ public class VoiceRoomController {
         registry.timer("create.voice.room.mic", "result", "success")
                 .record(Duration.between(initMicStartTimeStamp, Instant.now()));
         Long clickCount = 0L;
-        Long memberCount = 0L;
+        Long memberCount = 3L;
         Long giftAmount = 0L;
         VoiceRoomDTO roomDTO =
                 VoiceRoomDTO.from(voiceRoom, user, memberCount, clickCount, giftAmount);

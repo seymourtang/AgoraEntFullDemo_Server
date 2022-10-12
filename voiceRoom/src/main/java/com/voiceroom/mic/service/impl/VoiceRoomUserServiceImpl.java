@@ -166,7 +166,8 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
     }
 
     @Override
-    public VoiceRoomUser addVoiceRoomUser(String roomId, String uid) {
+    public VoiceRoomUser addVoiceRoomUser(String roomId, UserDTO joinUser) {
+        String uid = joinUser.getUid();
         VoiceRoom voiceRoom = voiceRoomService.findByRoomId(roomId);
         if (uid.equals(voiceRoom.getOwner())) {
             return VoiceRoomUser.builder().roomId(roomId).uid(uid).build();
@@ -178,11 +179,12 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
         if (voiceRoomUser == null) {
             voiceRoomUser = VoiceRoomUser.create(roomId, uid);
             save(voiceRoomUser);
-            incrClickCount(roomId);
-            incrMemberCount(roomId);
+            Long clickCount = incrClickCount(roomId);
+            Long memberCount = incrMemberCount(roomId);
             Map<String, Object> customExtensions = new HashMap<>();
             customExtensions.put("room_id", voiceRoom.getRoomId());
-            UserDTO joinUser=userService.getByUid(uid);
+            customExtensions.put("click_count", clickCount.toString());
+            customExtensions.put("member_count", memberCount.toString());
             try{
               customExtensions.put("room_user",
                         objectMapper.writeValueAsString(joinUser));
