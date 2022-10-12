@@ -39,7 +39,7 @@ public class VoiceRoomUserController {
         if (user == null) {
             throw new UserNotFoundException("join room user must not be null");
         }
-        voiceRoomUserService.addVoiceRoomUser(roomId, user.getUid());
+        voiceRoomUserService.addVoiceRoomUser(roomId, user);
         return new JoinRoomResponse(Boolean.TRUE);
     }
 

@@ -33,10 +33,10 @@ public interface VoiceRoomUserService extends IService<VoiceRoomUser> {
     /**
      * 添加房间成员
      * @param roomId
-     * @param uid
+     * @param joinUser
      * @return
      */
-    VoiceRoomUser addVoiceRoomUser(String roomId, String uid);
+    VoiceRoomUser addVoiceRoomUser(String roomId, UserDTO joinUser);
 
     /**
      * 删除指定房间成员
