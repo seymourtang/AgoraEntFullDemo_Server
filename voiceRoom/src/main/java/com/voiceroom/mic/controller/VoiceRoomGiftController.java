@@ -48,8 +48,9 @@ public class VoiceRoomGiftController {
                 giftRecordService.getRankingListByRoomId(roomId, voiceRoom.getOwner(),
                         rankingLength);
         if (giftRecordList == null || giftRecordList.isEmpty()) {
-            return new GetGiftListResponse(Collections.emptyList());
+            return new GetGiftListResponse(Collections.emptyList(), 0L);
         }
+
         List<String> uidList = giftRecordList.stream().map(GiftRecord::getUid)
                 .collect(Collectors.toList());
         Map<String, UserDTO> userDTOMap = userService.findByUidList(uidList);
@@ -58,7 +59,8 @@ public class VoiceRoomGiftController {
             return new GiftRecordVO(userDTO.getName(), userDTO.getPortrait(),
                     giftRecord.getAmount());
         }).collect(Collectors.toList());
-        return new GetGiftListResponse(list);
+        Long giftAmount = giftRecordService.getRoomGiftAmount(roomId);
+        return new GetGiftListResponse(list, giftAmount);
     }
 
     @PostMapping("/voice/room/{roomId}/gift/add")

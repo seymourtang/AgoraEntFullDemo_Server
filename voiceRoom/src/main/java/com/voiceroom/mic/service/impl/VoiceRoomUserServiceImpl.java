@@ -64,6 +64,9 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
     @Value("${voice.room.redis.cache.ttl:PT1H}")
     private Duration ttl;
 
+    @Value("${voice.room.user.leave.notice:false}")
+    private boolean leaveRoomSendNotice;
+
     @Override
     public void deleteByRoomId(String roomId) {
         LambdaQueryWrapper<VoiceRoomUser> queryWrapper =
@@ -185,10 +188,10 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
             customExtensions.put("room_id", voiceRoom.getRoomId());
             customExtensions.put("click_count", clickCount.toString());
             customExtensions.put("member_count", memberCount.toString());
-            try{
-              customExtensions.put("room_user",
+            try {
+                customExtensions.put("room_user",
                         objectMapper.writeValueAsString(joinUser));
-            }catch (Exception e){
+            } catch (Exception e) {
                 log.error("write user json failed | uid={}, roomId={}, e=", uid,
                         roomId, e);
             }
@@ -200,11 +203,12 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
 
     @Override
     @Transactional
-    public void deleteVoiceRoomUser(String roomId, String uid, Boolean isSuccess) {
+    public void deleteVoiceRoomUser(String roomId, UserDTO leaveUser, Boolean isSuccess) {
         VoiceRoom voiceRoom = voiceRoomService.findByRoomId(roomId);
         if (voiceRoom == null) {
             return;
         }
+        String uid = leaveUser.getUid();
         if (uid.equals(voiceRoom.getOwner())) {
             voiceRoomService.deleteByRoomId(roomId, uid);
         } else {
@@ -214,7 +218,7 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
                 voiceRoomMicService.leaveMic(userService.getByUid(uid), voiceRoom.getChatroomId(),
                         voiceRoomUser.getMicIndex(), voiceRoom.getRoomId());
                 baseMapper.deleteById(voiceRoomUser);
-                decrMemberCount(roomId);
+                Long memberCount = decrMemberCount(roomId);
                 redisTemplate.delete(key(roomId, uid));
                 if (Boolean.FALSE.equals(isSuccess)) {
                     UserDTO user = userService.getByUid(uid);
@@ -224,6 +228,21 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
                         log.error("delete easemob chatroom member failed, roomId={}, err={}",
                                 roomId, e);
                     }
+                }
+                if (leaveRoomSendNotice) {
+                    Map<String, Object> customExtensions = new HashMap<>();
+                    customExtensions.put("room_id", voiceRoom.getRoomId());
+                    customExtensions.put("member_count", memberCount.toString());
+                    try {
+                        customExtensions.put("room_user",
+                                objectMapper.writeValueAsString(leaveUser));
+                    } catch (Exception e) {
+                        log.error("write user json failed | uid={}, roomId={}, e=", leaveUser,
+                                roomId, e);
+                    }
+                    this.imApi.sendChatRoomCustomMessage(leaveUser.getChatUid(),
+                            voiceRoom.getChatroomId(), CustomEventType.LEAVE_VOICE_ROOM.getValue(),
+                            customExtensions, new HashMap<>());
                 }
             }
         }

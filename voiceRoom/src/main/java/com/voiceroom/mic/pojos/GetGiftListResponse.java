@@ -12,4 +12,7 @@ public class GetGiftListResponse {
     @JsonProperty("ranking_list")
     private List<GiftRecordVO> rankingList;
 
+    @JsonProperty("gift_amount")
+    private Long giftAmount;
+
 }
