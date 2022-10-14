@@ -9,7 +9,7 @@ import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.ObjectListing;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.md.service.config.RtmJavaClient;
-import com.md.service.model.dto.UserInfo;
+import com.md.service.model.entity.Users;
 import com.md.service.service.UsersService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -112,7 +112,7 @@ public class UploadFile {
                     yiTuUtils.checkImage( "https://" + bucketName + "." + endpoint + "/" + s.getKey());
                 }catch (Exception e){
                     rtmJavaClient.login("99999999");
-                    UserInfo userInfo = usersService.getUser(userNo);
+                    Users userInfo = usersService.getById(Integer.parseInt(userNo));
                     JSONObject object = new JSONObject();
                     object.put("userNo",userInfo.getUserNo());
                     object.put("messageType","20");
