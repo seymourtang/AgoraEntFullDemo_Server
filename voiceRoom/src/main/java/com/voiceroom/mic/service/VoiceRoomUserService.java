@@ -41,10 +41,10 @@ public interface VoiceRoomUserService extends IService<VoiceRoomUser> {
     /**
      * 删除指定房间成员
      * @param roomId
-     * @param uid
+     * @param leaveUser
      * @param isSuccess
      */
-    void deleteVoiceRoomUser(String roomId, String uid, Boolean isSuccess);
+    void deleteVoiceRoomUser(String roomId, UserDTO leaveUser, Boolean isSuccess);
 
     /**
      * 踢出指定房间成员

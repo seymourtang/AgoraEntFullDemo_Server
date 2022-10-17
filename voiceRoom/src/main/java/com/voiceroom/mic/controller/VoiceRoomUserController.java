@@ -50,7 +50,7 @@ public class VoiceRoomUserController {
         if (user == null) {
             throw new UserNotFoundException("leave room user must not be null");
         }
-        voiceRoomUserService.deleteVoiceRoomUser(roomId, user.getUid(), isSuccess);
+        voiceRoomUserService.deleteVoiceRoomUser(roomId, user, isSuccess);
         return new LeaveRoomResponse(Boolean.TRUE);
     }
 

@@ -44,6 +44,8 @@ public enum CustomEventType {
      * 加入语聊房
      */
     JOIN_VOICE_ROOM("chatroom_join"),
+
+    LEAVE_VOICE_ROOM("chatroom_leave"),
     ;
 
     private String eventType;
