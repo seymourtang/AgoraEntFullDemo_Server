@@ -106,6 +106,7 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
         }
         incrRoomCountByType(voiceRoom.getType());
         initMemberCount(voiceRoom.getRoomId());
+        initClickCount(voiceRoom.getRoomId());
         return voiceRoom;
     }
 
@@ -268,7 +269,7 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
     }
 
     public Long getClickCount(String roomId) {
-        String key = String.format("room:voice:%s:memberCount", roomId);
+        String key = String.format("room:voice:%s:clickCount", roomId);
         try {
             return redisTemplate.opsForValue().increment(key, 0L);
         } catch (Exception e) {
@@ -278,7 +279,7 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
     }
 
     public Long getMemberCount(String roomId) {
-        String key = String.format("room:voice:%s:clickCount", roomId);
+        String key = String.format("room:voice:%s:memberCount", roomId);
         try {
             return redisTemplate.opsForValue().increment(key, 0L);
         } catch (Exception e) {
@@ -288,11 +289,20 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
     }
 
     public void initMemberCount(String roomId) {
+        String key = String.format("room:voice:%s:memberCount", roomId);
+        try {
+            redisTemplate.opsForValue().set(key, String.valueOf(3));
+        } catch (Exception e) {
+            log.error("set room member count failed | roomId={}, err=", roomId, e);
+        }
+    }
+
+    private void initClickCount(String roomId) {
         String key = String.format("room:voice:%s:clickCount", roomId);
         try {
             redisTemplate.opsForValue().set(key, String.valueOf(3));
         } catch (Exception e) {
-            log.error("get room member count failed | roomId={}, err=", roomId, e);
+            log.error("set room click count failed | roomId={}, err=", roomId, e);
         }
     }
 

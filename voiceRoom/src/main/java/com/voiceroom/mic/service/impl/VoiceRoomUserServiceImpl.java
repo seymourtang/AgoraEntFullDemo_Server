@@ -284,27 +284,27 @@ public class VoiceRoomUserServiceImpl extends ServiceImpl<VoiceRoomUserMapper, V
     }
 
     private Long incrClickCount(String roomId) {
-        String key = String.format("room:voice:%s:memberCount", roomId);
+        String key = String.format("room:voice:%s:clickCount", roomId);
         return redisTemplate.opsForValue().increment(key);
     }
 
     private Long incrMemberCount(String roomId) {
-        String key = String.format("room:voice:%s:clickCount", roomId);
+        String key = String.format("room:voice:%s:memberCount", roomId);
         return redisTemplate.opsForValue().increment(key);
     }
 
     private Long decrMemberCount(String roomId) {
-        String key = String.format("room:voice:%s:clickCount", roomId);
+        String key = String.format("room:voice:%s:memberCount", roomId);
         return redisTemplate.opsForValue().increment(key, -1L);
     }
 
     private void cleanMemberCount(String roomId) {
-        String key = String.format("room:voice:%s:clickCount", roomId);
+        String key = String.format("room:voice:%s:memberCount", roomId);
         redisTemplate.delete(key);
     }
 
     private void cleanClickCount(String roomId) {
-        String key = String.format("room:voice:%s:memberCount", roomId);
+        String key = String.format("room:voice:%s:clickCount", roomId);
         redisTemplate.delete(key);
     }
 
