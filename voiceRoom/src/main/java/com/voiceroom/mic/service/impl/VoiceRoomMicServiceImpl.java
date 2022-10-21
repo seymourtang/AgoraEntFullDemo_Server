@@ -167,16 +167,19 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
                 MicMetadataValue micMetadataValue;
                 if (micIndex == 0) {
                     micMetadataValue = new MicMetadataValue(this.userService.getByUid(ownerUid),
-                            MicStatus.NORMAL.getStatus());
+                            MicStatus.NORMAL.getStatus(), micIndex);
                 } else {
-                    micMetadataValue = new MicMetadataValue(null, MicStatus.FREE.getStatus());
+                    micMetadataValue =
+                            new MicMetadataValue(null, MicStatus.FREE.getStatus(), micIndex);
                 }
                 if ((micIndex + voiceRoom.getRobotCount()) >= micCount) {
                     if (isActive) {
-                        micMetadataValue = new MicMetadataValue(null, MicStatus.ACTIVE.getStatus());
+                        micMetadataValue =
+                                new MicMetadataValue(null, MicStatus.ACTIVE.getStatus(), micIndex);
                     } else {
                         micMetadataValue =
-                                new MicMetadataValue(null, MicStatus.INACTIVE.getStatus());
+                                new MicMetadataValue(null, MicStatus.INACTIVE.getStatus(),
+                                        micIndex);
                     }
                 }
 
@@ -212,7 +215,8 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
         for (int index = 0; index < robotCount; index++) {
             String robotMetaDataKey = buildMicKey(voiceRoom.getMicCount() + index);
             MicMetadataValue micMetadataValue = new MicMetadataValue(null,
-                    isActive ? MicStatus.ACTIVE.getStatus() : MicStatus.INACTIVE.getStatus());
+                    isActive ? MicStatus.ACTIVE.getStatus() : MicStatus.INACTIVE.getStatus(),
+                    voiceRoom.getMicCount() + index);
             String jsonValue = "";
             try {
                 jsonValue = objectMapper.writeValueAsString(micMetadataValue);
@@ -353,7 +357,8 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
                     userDTO, e);
         }
         customExtensions.put("room_id", roomInfo.getRoomId());
-        this.imApi.sendUserCustomMessage(userDTO.getChatUid(), userService.getByUid(roomInfo.getOwner()).getUid(),
+        this.imApi.sendUserCustomMessage(userDTO.getChatUid(),
+                userService.getByUid(roomInfo.getOwner()).getUid(),
                 CustomEventType.INVITE_REFUSED.getValue(), customExtensions, new HashMap<>());
 
         return Boolean.TRUE;
@@ -441,9 +446,9 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
 
                 int currentStatus = fromMicMetadataValue.getStatus();
 
-                fromMicMetadataValue = new MicMetadataValue(null, MicStatus.FREE.getStatus());
+                fromMicMetadataValue = new MicMetadataValue(null, MicStatus.FREE.getStatus(), from);
                 toMicMetadataValue =
-                        new MicMetadataValue(this.userService.getByUid(uid), currentStatus);
+                        new MicMetadataValue(this.userService.getByUid(uid), currentStatus, to);
 
                 metadata = new HashMap<>();
                 try {
@@ -682,13 +687,14 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
 
                 if (updateUid == null) {
                     micMetadataValue =
-                            new MicMetadataValue(null, updateStatus);
+                            new MicMetadataValue(null, updateStatus, micIndex);
                 } else if (updateUid.equals(micMetadataValue.getUid())) {
                     micMetadataValue =
-                            new MicMetadataValue(micMetadataValue.getMember(), updateStatus);
+                            new MicMetadataValue(micMetadataValue.getMember(), updateStatus,
+                                    micIndex);
                 } else {
                     micMetadataValue =
-                            new MicMetadataValue(user, updateStatus);
+                            new MicMetadataValue(user, updateStatus, micIndex);
                 }
 
                 metadata = new HashMap<>();
