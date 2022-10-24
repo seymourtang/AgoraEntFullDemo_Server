@@ -14,10 +14,7 @@ import com.voiceroom.mic.model.VoiceRoomUser;
 import com.voiceroom.mic.pojos.MicInfo;
 import com.voiceroom.mic.pojos.MicMetadataValue;
 import com.voiceroom.mic.pojos.UserDTO;
-import com.voiceroom.mic.service.UserService;
-import com.voiceroom.mic.service.VoiceRoomMicService;
-import com.voiceroom.mic.service.VoiceRoomService;
-import com.voiceroom.mic.service.VoiceRoomUserService;
+import com.voiceroom.mic.service.*;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -49,6 +46,9 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
 
     @Resource
     private VoiceRoomService voiceRoomService;
+
+    @Resource
+    private MicApplyUserService micApplyUserService;
 
     @Resource
     private VoiceRoomUserService voiceRoomUserService;
@@ -331,12 +331,17 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
 
     @Override
     public Boolean agreeInvite(VoiceRoom roomInfo, UserDTO user, Integer micIndex) {
-        if (micIndex == null) {
-            return setRoomMicInfo(roomInfo, user, null, Boolean.TRUE);
-        } else {
-            return setRoomMicInfo(roomInfo, user, micIndex, Boolean.FALSE);
-        }
 
+        Boolean result = false;
+        if (micIndex == null) {
+            result = setRoomMicInfo(roomInfo, user, null, Boolean.TRUE);
+        } else {
+            result = setRoomMicInfo(roomInfo, user, micIndex, Boolean.FALSE);
+        }
+        if (result) {
+            micApplyUserService.deleteMicApply(user.getUid(), roomInfo, Boolean.FALSE);
+        }
+        return result;
     }
 
     @Override
