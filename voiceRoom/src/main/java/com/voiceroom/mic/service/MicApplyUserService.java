@@ -18,4 +18,10 @@ public interface MicApplyUserService extends IService<MicApplyUser> {
     PageInfo<MicApplyVO> getByPage(String roomId, String cursor, Integer limit);
 
     Boolean refuseApply(VoiceRoom roomInfo, String uid, Integer micIndex);
+
+    /**
+     * 删除房间麦位申请记录
+     * @param roomId
+     */
+    void deleteByRoomId(String roomId);
 }

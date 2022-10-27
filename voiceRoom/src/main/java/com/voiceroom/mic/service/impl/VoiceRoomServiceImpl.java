@@ -14,10 +14,7 @@ import com.voiceroom.mic.exception.VoiceRoomSecurityException;
 import com.voiceroom.mic.model.VoiceRoom;
 import com.voiceroom.mic.pojos.*;
 import com.voiceroom.mic.repository.VoiceRoomMapper;
-import com.voiceroom.mic.service.UserService;
-import com.voiceroom.mic.service.VoiceRoomMicService;
-import com.voiceroom.mic.service.VoiceRoomService;
-import com.voiceroom.mic.service.VoiceRoomUserService;
+import com.voiceroom.mic.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +44,12 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
 
     @Resource
     private VoiceRoomMicService voiceRoomMicService;
+
+    @Resource
+    private MicApplyUserService micApplyUserService;
+
+    @Resource
+    private GiftRecordService giftRecordService;
 
     @Resource
     private ImApi imApi;
@@ -245,6 +248,8 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
                     voiceRoom.getChatroomId(), e);
         }
         voiceRoomUserService.deleteByRoomId(roomId);
+        micApplyUserService.deleteByRoomId(roomId);
+        giftRecordService.deleteByRoomId(roomId);
         LambdaQueryWrapper<VoiceRoom> queryWrapper =
                 new LambdaQueryWrapper<VoiceRoom>().eq(VoiceRoom::getRoomId, roomId);
         baseMapper.delete(queryWrapper);
@@ -252,6 +257,8 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
         if (Boolean.TRUE.equals(hasKey)) {
             redisTemplate.delete(key(roomId));
         }
+        deleteClickCount(roomId);
+        deleteMemberCount(roomId);
         decrRoomCountByType(voiceRoom.getType());
     }
 
@@ -303,6 +310,24 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
             redisTemplate.opsForValue().set(key, String.valueOf(3));
         } catch (Exception e) {
             log.error("set room click count failed | roomId={}, err=", roomId, e);
+        }
+    }
+
+    private void deleteClickCount(String roomId) {
+        String key = String.format("room:voice:%s:clickCount", roomId);
+        try {
+            redisTemplate.delete(key);
+        } catch (Exception e) {
+            log.error("delete room click count failed | roomId={}, err=", roomId, e);
+        }
+    }
+
+    private void deleteMemberCount(String roomId) {
+        String key = String.format("room:voice:%s:memberCount", roomId);
+        try {
+            redisTemplate.delete(key);
+        } catch (Exception e) {
+            log.error("delete room member count failed | roomId={}, err=", roomId, e);
         }
     }
 
