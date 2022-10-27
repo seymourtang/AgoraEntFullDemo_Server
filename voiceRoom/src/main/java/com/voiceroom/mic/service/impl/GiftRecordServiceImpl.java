@@ -87,6 +87,15 @@ public class GiftRecordServiceImpl extends ServiceImpl<GiftRecordMapper, GiftRec
         }
     }
 
+    @Override
+    public void deleteByRoomId(String roomId) {
+        LambdaQueryWrapper<GiftRecord> queryWrapper =
+                new LambdaQueryWrapper<GiftRecord>()
+                        .eq(GiftRecord::getRoomId, roomId);
+        baseMapper.delete(queryWrapper);
+        redisTemplate.delete(key(roomId));
+    }
+
     public void incrRoomGiftAmount(String roomId, Long amount) {
         try {
             redisTemplate.opsForValue().increment(key(roomId), amount);

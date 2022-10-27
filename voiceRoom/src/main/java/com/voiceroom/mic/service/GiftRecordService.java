@@ -33,4 +33,10 @@ public interface GiftRecordService extends IService<GiftRecord> {
      * @return
      */
     public Long getRoomGiftAmount(String roomId);
+
+    /**
+     * 删除房间所有打赏记录
+     * @param roomId
+     */
+    void deleteByRoomId(String roomId);
 }

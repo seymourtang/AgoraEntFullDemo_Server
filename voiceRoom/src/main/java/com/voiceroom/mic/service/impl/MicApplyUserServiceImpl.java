@@ -167,6 +167,12 @@ public class MicApplyUserServiceImpl extends ServiceImpl<MicApplyUserMapper, Mic
         return Boolean.TRUE;
     }
 
+    @Override public void deleteByRoomId(String roomId) {
+        LambdaQueryWrapper<MicApplyUser> queryWrapper =
+                new LambdaQueryWrapper<MicApplyUser>().eq(MicApplyUser::getRoomId, roomId);
+        baseMapper.delete(queryWrapper);
+    }
+
     @Override public PageInfo<MicApplyVO> getByPage(String roomId, String cursor, Integer limit) {
         List<MicApplyUser> micApplyUser;
         int limitSize = limit + 1;
