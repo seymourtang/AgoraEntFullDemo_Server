@@ -445,15 +445,28 @@ public class VoiceRoomMicServiceImpl implements VoiceRoomMicService {
                     throw new MicNotBelongYouException();
                 }
 
-                if (toMicMetadataValue.getStatus() != MicStatus.FREE.getStatus()) {
+                if (toMicMetadataValue.getStatus() != MicStatus.FREE.getStatus() && toMicMetadataValue.getStatus() != MicStatus.MUTE.getStatus()) {
                     throw new MicStatusCannotBeModifiedException();
                 }
 
-                int currentStatus = fromMicMetadataValue.getStatus();
 
-                fromMicMetadataValue = new MicMetadataValue(null, MicStatus.FREE.getStatus(), from);
-                toMicMetadataValue =
-                        new MicMetadataValue(this.userService.getByUid(uid), currentStatus, to);
+                if (toMicMetadataValue.getStatus() == MicStatus.FREE.getStatus()) {
+                    toMicMetadataValue =
+                            new MicMetadataValue(this.userService.getByUid(uid),
+                                    MicStatus.NORMAL.getStatus(), to);
+                } else {
+                    toMicMetadataValue =
+                            new MicMetadataValue(this.userService.getByUid(uid), toMicMetadataValue.getStatus(), to);
+                }
+
+                if (fromMicMetadataValue.getStatus() == MicStatus.MUTE.getStatus()) {
+                    fromMicMetadataValue =
+                            new MicMetadataValue(null, fromMicMetadataValue.getStatus(), from);
+                } else {
+                    fromMicMetadataValue =
+                            new MicMetadataValue(null, MicStatus.FREE.getStatus(), from);
+                }
+
 
                 metadata = new HashMap<>();
                 try {
