@@ -1,11 +1,11 @@
 package com.voiceroom.mic.exception;
 
-import com.voiceroom.mic.common.constants.ErrorCodeConstant;
+import com.voiceroom.mic.common.constants.ErrorCodeConstants;
 import org.springframework.http.HttpStatus;
 
 public class MicInitException extends VoiceRoomException {
 
     public MicInitException() {
-        super(ErrorCodeConstant.micInitError, "mic init error", HttpStatus.INTERNAL_SERVER_ERROR);
+        super(ErrorCodeConstants.micInitError, "mic init error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

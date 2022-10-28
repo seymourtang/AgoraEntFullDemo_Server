@@ -1,12 +1,12 @@
 package com.voiceroom.mic.exception;
 
-import com.voiceroom.mic.common.constants.ErrorCodeConstant;
+import com.voiceroom.mic.common.constants.ErrorCodeConstants;
 import org.springframework.http.HttpStatus;
 
 public class MicApplyRecordNotFoundException extends VoiceRoomException {
 
     public MicApplyRecordNotFoundException() {
-        super(ErrorCodeConstant.micApplyRecordNotFoundError, "mic apply record not found",
+        super(ErrorCodeConstants.micApplyRecordNotFoundError, "mic apply record not found",
                 HttpStatus.NOT_FOUND);
     }
 }

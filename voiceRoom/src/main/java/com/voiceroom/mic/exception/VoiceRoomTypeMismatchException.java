@@ -1,11 +1,11 @@
 package com.voiceroom.mic.exception;
 
-import com.voiceroom.mic.common.constants.ErrorCodeConstant;
+import com.voiceroom.mic.common.constants.ErrorCodeConstants;
 import org.springframework.http.HttpStatus;
 
 public class VoiceRoomTypeMismatchException extends VoiceRoomException {
 
     public VoiceRoomTypeMismatchException(String message) {
-        super(ErrorCodeConstant.voiceRoomTypeMismatch, message, HttpStatus.BAD_REQUEST);
+        super(ErrorCodeConstants.voiceRoomTypeMismatch, message, HttpStatus.BAD_REQUEST);
     }
 }

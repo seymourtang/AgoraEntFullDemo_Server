@@ -12,7 +12,7 @@ import com.easemob.im.server.model.EMPage;
 import com.easemob.im.server.model.EMRoom;
 import com.easemob.im.server.model.EMUser;
 import com.easemob.im.shaded.io.netty.handler.timeout.TimeoutException;
-import com.voiceroom.mic.common.constants.CustomMetricsName;
+import com.voiceroom.mic.common.constants.CustomMetricsNameConstants;
 import com.voiceroom.mic.model.UserThirdAccount;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
@@ -646,17 +646,17 @@ public class ImApi {
         List<Tag> tags = new ArrayList<>();
         Tag uriTag = Tag.of("method", method);
         tags.add(uriTag);
-        registry.timer(CustomMetricsName.ImHttpRequestTimer, tags).record(duration);
+        registry.timer(CustomMetricsNameConstants.ImHttpRequestTimer, tags).record(duration);
     }
 
     private void addErrorMetricsRecord(String method, String errorMessage) {
         List<Tag> tags = getErrorTags(method, errorMessage);
-        registry.counter(CustomMetricsName.ImHttpRequestCounter, tags).increment();
+        registry.counter(CustomMetricsNameConstants.ImHttpRequestCounter, tags).increment();
     }
 
     private void addMetricsRecord(String method) {
         List<Tag> tags = getSuccessTags(method);
-        registry.counter(CustomMetricsName.ImHttpRequestCounter, tags).increment();
+        registry.counter(CustomMetricsNameConstants.ImHttpRequestCounter, tags).increment();
     }
 
     private List<Tag> getSuccessTags(String method) {
