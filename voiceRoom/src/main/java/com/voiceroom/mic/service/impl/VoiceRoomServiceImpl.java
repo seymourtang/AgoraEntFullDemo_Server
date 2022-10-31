@@ -117,10 +117,6 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
     public PageInfo<RoomListDTO> getByPage(String cursor, int limit, Integer type) {
         List<VoiceRoom> voiceRoomList;
         int limitSize = limit + 1;
-        LambdaQueryWrapper<VoiceRoom> totalQueryWrapper = new LambdaQueryWrapper<>();
-        if (type != null) {
-            totalQueryWrapper.eq(VoiceRoom::getType, type);
-        }
         Long total = getRoomCountByType(type);
         if (StringUtils.isBlank(cursor)) {
             LambdaQueryWrapper<VoiceRoom> queryWrapper =
@@ -278,7 +274,11 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
     public Long getClickCount(String roomId) {
         String key = String.format("room:voice:%s:clickCount", roomId);
         try {
-            return redisTemplate.opsForValue().increment(key, 0L);
+            String count = redisTemplate.opsForValue().get(key);
+            if (StringUtils.isBlank(count)) {
+                return 0L;
+            }
+            return Long.parseLong(count);
         } catch (Exception e) {
             log.error("get room click count failed | roomId={}, err=", roomId, e);
             return 0L;
@@ -288,7 +288,11 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
     public Long getMemberCount(String roomId) {
         String key = String.format("room:voice:%s:memberCount", roomId);
         try {
-            return redisTemplate.opsForValue().increment(key, 0L);
+            String count = redisTemplate.opsForValue().get(key);
+            if (StringUtils.isBlank(count)) {
+                return 0L;
+            }
+            return Long.parseLong(count);
         } catch (Exception e) {
             log.error("get room member count failed | roomId={}, err=", roomId, e);
             return 0L;
@@ -385,6 +389,10 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
     }
 
     private Long getRoomCountByType(Integer type) {
-        return redisTemplate.opsForValue().increment(roomCountKey(type), 0L);
+        String total = redisTemplate.opsForValue().get(roomCountKey(type));
+        if (StringUtils.isBlank(total)) {
+            return 0L;
+        }
+        return Long.parseLong(total);
     }
 }
