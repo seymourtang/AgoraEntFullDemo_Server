@@ -1,15 +1,15 @@
 package com.voiceroom.mic.exception;
 
-import com.voiceroom.mic.common.constants.ErrorCodeConstants;
+import com.voiceroom.mic.common.constants.ErrorCodeConstant;
 import org.springframework.http.HttpStatus;
 
 public class UserNotInRoomException extends VoiceRoomException {
 
     public UserNotInRoomException() {
-        super(ErrorCodeConstants.userNotInRoomError, "user not in voice room", HttpStatus.FORBIDDEN);
+        super(ErrorCodeConstant.userNotInRoomError, "user not in voice room", HttpStatus.FORBIDDEN);
     }
 
     public UserNotInRoomException(String message) {
-        super(ErrorCodeConstants.userNotInRoomError, message, HttpStatus.FORBIDDEN);
+        super(ErrorCodeConstant.userNotInRoomError, message, HttpStatus.FORBIDDEN);
     }
 }

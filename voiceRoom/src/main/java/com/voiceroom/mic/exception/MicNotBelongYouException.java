@@ -1,12 +1,12 @@
 package com.voiceroom.mic.exception;
 
-import com.voiceroom.mic.common.constants.ErrorCodeConstants;
+import com.voiceroom.mic.common.constants.ErrorCodeConstant;
 import org.springframework.http.HttpStatus;
 
 public class MicNotBelongYouException extends VoiceRoomException {
 
     public MicNotBelongYouException() {
-        super(ErrorCodeConstants.micNotBelongYouError, "mic index not belong you",
+        super(ErrorCodeConstant.micNotBelongYouError, "mic index not belong you",
                 HttpStatus.UNAUTHORIZED);
     }
 }
