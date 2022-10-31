@@ -80,7 +80,11 @@ public class GiftRecordServiceImpl extends ServiceImpl<GiftRecordMapper, GiftRec
     @Override
     public Long getRoomGiftAmount(String roomId) {
         try {
-            return redisTemplate.opsForValue().increment(key(roomId), 0L);
+            String amount = redisTemplate.opsForValue().get(key(roomId));
+            if (StringUtils.isBlank(amount)) {
+                return 0L;
+            }
+            return Long.parseLong(amount);
         } catch (Exception e) {
             log.error("get room gift amount failed", e);
             return 0L;
