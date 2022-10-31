@@ -248,14 +248,18 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
         giftRecordService.deleteByRoomId(roomId);
         LambdaQueryWrapper<VoiceRoom> queryWrapper =
                 new LambdaQueryWrapper<VoiceRoom>().eq(VoiceRoom::getRoomId, roomId);
-        baseMapper.delete(queryWrapper);
+        int delete = baseMapper.delete(queryWrapper);
+        if (delete == 0) {
+            log.warn("this voice room already removed! voiceRoom={}", voiceRoom);
+        } else {
+            decrRoomCountByType(voiceRoom.getType());
+        }
         Boolean hasKey = redisTemplate.hasKey(key(roomId));
         if (Boolean.TRUE.equals(hasKey)) {
             redisTemplate.delete(key(roomId));
         }
         deleteClickCount(roomId);
         deleteMemberCount(roomId);
-        decrRoomCountByType(voiceRoom.getType());
     }
 
     @Override
@@ -384,8 +388,14 @@ public class VoiceRoomServiceImpl extends ServiceImpl<VoiceRoomMapper, VoiceRoom
     }
 
     private void decrRoomCountByType(Integer type) {
-        redisTemplate.opsForValue().increment(roomCountKey(type), -1L);
-        redisTemplate.opsForValue().increment(roomCountKey(null), -1L);
+        Long increment = redisTemplate.opsForValue().increment(roomCountKey(type), -1L);
+        if (increment != null && increment < 0) {
+            redisTemplate.opsForValue().set(roomCountKey(type), String.valueOf(0));
+        }
+        Long increment1 = redisTemplate.opsForValue().increment(roomCountKey(null), -1L);
+        if (increment1 != null && increment1 < 0) {
+            redisTemplate.opsForValue().set(roomCountKey(null), String.valueOf(0));
+        }
     }
 
     private Long getRoomCountByType(Integer type) {
