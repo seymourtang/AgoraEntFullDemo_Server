@@ -161,7 +161,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         Users users = getUserByNo(no);
         baseMapper.deleteById(users);
         //注销后 全部下座位
-        roomUsersService.update(new LambdaUpdateWrapper<RoomUsers>().eq(RoomUsers::getUserId,users).
+        roomUsersService.update(new LambdaUpdateWrapper<RoomUsers>().eq(RoomUsers::getUserId,users.getId()).
                 set(RoomUsers::getOnSeat,0).set(RoomUsers::getDeletedAt, LocalDateTime.now()));
         //关闭所有房间
         roomInfoService.update(new LambdaUpdateWrapper<RoomInfo>().eq(RoomInfo::getCreator,users.getId())
