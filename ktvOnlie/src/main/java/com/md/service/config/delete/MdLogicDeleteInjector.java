@@ -1,9 +1,9 @@
 package com.md.service.config.delete;
 
-import com.baomidou.mybatisplus.core.injector.AbstractSqlInjector;
-
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
+import com.baomidou.mybatisplus.core.injector.AbstractSqlInjector;
 import com.baomidou.mybatisplus.core.injector.methods.Insert;
+import com.baomidou.mybatisplus.core.injector.methods.SelectMaps;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 
 import java.util.List;
@@ -25,7 +25,8 @@ public class MdLogicDeleteInjector extends AbstractSqlInjector {
                 new MdLogicSelectOne(),
                 new MdLogicSelectCount(),
                 new MdLogicSelectList(),
-                new MdLogicSelectPage()
+                new MdLogicSelectPage(),
+                new SelectMaps()
         ).collect(Collectors.toList());
     }
 }
