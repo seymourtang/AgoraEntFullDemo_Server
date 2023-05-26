@@ -165,7 +165,7 @@ drop table if exists `user_device_info`;
 CREATE TABLE `user_device_info`
 (
     `id`         int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
-    `user_no`    varchar(100)     NOT NULL comment '用户no',
+    `user_no`    varchar(100)     NOT NULL COMMENT '用户no',
     `mobile`     varchar(20)  NOT NULL DEFAULT '' COMMENT '用户手机号',
     `app_id`     varchar(100) NOT NULL DEFAULT '' COMMENT 'appId',
     `project_id` varchar(100) NOT NULL DEFAULT '' COMMENT '项目Id',
@@ -180,14 +180,60 @@ CREATE TABLE `user_device_info`
     PRIMARY KEY (`id`),
     KEY `idx_device_info_created_at` (`created_at`),
     KEY `idx_device_info_updated_at` (`updated_at`),
-    KEY `idx_device_info_user_no` (`user_no`)
+    KEY `idx_device_info_user_no` (`user_no`),
+    KEY `idx_device_info_user_mobile` (`mobile`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 1
   DEFAULT CHARSET = utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT ='用户设备';
 
+drop table if exists `user_config`;
+CREATE TABLE `user_config`
+(
+    `id`         int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `user_no`    varchar(100)     NOT NULL COMMENT '用户no',
+    `mobile`     varchar(20)  NOT NULL DEFAULT '' COMMENT '用户手机号',
+    `app_id`     varchar(100) NOT NULL DEFAULT '' COMMENT 'appId',
+    `project_id` varchar(100) NOT NULL DEFAULT '' COMMENT '项目Id',
+    `scene_id`    varchar(100) NOT NULL DEFAULT '' COMMENT '场景',
+    `background_url` varchar(500) NOT NULL DEFAULT '' COMMENT '最近的一次App背景图片',
+    `background_count`      int(10 NOT NULL DEFAULT 0 COMMENT '收集用户背景图片次数',
+    `created_at` timestamp        NULL DEFAULT NULL COMMENT '创建时间',
+    `updated_at` timestamp        NULL DEFAULT NULL COMMENT '修改时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_user_config_created_at` (`created_at`),
+    KEY `idx_user_config_updated_at` (`updated_at`),
+    KEY `idx_user_config_user_no` (`user_no`),
+    KEY `idx_user_config_user_mobile` (`mobile`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT ='用户配置信息';
 
+ALTER TABLE `user_config` ADD UNIQUE KEY `user_config_unique` (`user_no`,`app_id`,`project_id`,`scene_id`);
 
+drop table if exists `user_action_info`;
+CREATE TABLE `user_action_info`
+(
+    `id`         int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+    `user_no`    varchar(100)     NOT NULL COMMENT '用户no',
+    `mobile`     varchar(20)  NOT NULL DEFAULT '' COMMENT '用户手机号',
+    `app_id`     varchar(100) NOT NULL DEFAULT '' COMMENT 'appId',
+    `project_id` varchar(100) NOT NULL DEFAULT '' COMMENT '项目Id',
+    `scene_id`    varchar(100) NOT NULL DEFAULT '' COMMENT '场景',
+    `day` varchar(20) NOT NULL DEFAULT '' COMMENT '日期，精确到天'
+    `action`     varchar(100) NOT NULL DEFAULT '' COMMENT '用户行为',
+    `count`      int(10)          NOT NULL  DEFAULT 0 COMMENT '用户行为次数',
+    `created_at` timestamp        NULL DEFAULT NULL COMMENT '创建时间',
+    `updated_at` timestamp        NULL DEFAULT NULL COMMENT '修改时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_user_action_info_created_at` (`created_at`),
+    KEY `idx_user_action_info_updated_at` (`updated_at`),
+    KEY `idx_user_action_info_user_no` (`user_no`),
+    KEY `idx_user_action_info_user_mobile` (`mobile`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT ='用户行为统计信息';
 
+ALTER TABLE `user_action_info` ADD UNIQUE KEY `user_action_unique` (`user_no`,`mobile`, `app_id`,`project_id`,`scene_id`,`action`,`day`);
 
 
 # voice room
