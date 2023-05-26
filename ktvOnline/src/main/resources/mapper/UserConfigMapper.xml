@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.md.service.repository.UserConfigMapper">
+    <insert id="insertOrUpdate">
+        insert into user_config(user_no, mobile, app_id, project_id, scene_id, background_url, background_count, created_at, updated_at)
+        values
+            (
+            #{entity.userNo},
+            #{entity.mobile},
+            #{entity.appId},
+            #{entity.projectId},
+            #{entity.sceneId},
+            #{entity.backgroundUrl},
+            #{entity.backgroundCount},
+            #{entity.createdAt},
+            #{entity.updatedAt})
+        on duplicate key update
+        background_url=#{entity.backgroundUrl},
+        background_count=`background_count`+1,
+        updated_at=#{entity.updatedAt}
+    </insert>
+</mapper>
