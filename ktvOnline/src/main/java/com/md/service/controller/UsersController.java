@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.md.service.model.BaseResult;
-import com.md.service.model.dto.RoomPageDTO;
 import com.md.service.model.dto.UserInfo;
 import com.md.service.model.entity.Users;
 import com.md.service.model.form.UpdateUserInfoForm;
@@ -47,7 +46,7 @@ public class UsersController extends BaseController{
     }
 
     @GetMapping("/login")
-    @ApiOperation("登陆")
+    @ApiOperation("登录")
     public BaseResult<UserInfo> login(String phone, String code){
         log.info("login form : {}",phone);
         BaseResult<UserInfo> result = usersService.login(phone,code);
