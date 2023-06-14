@@ -12,8 +12,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -60,21 +58,22 @@ public class JwtUtil {
                 .signWith(signatureAlgorithm, key);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR) + 10);
+        int exTimeInt = Integer.parseInt(exTime);
+        calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) + exTimeInt);
         Date exp = calendar.getTime();
         builder.setExpiration(exp);
         String result = builder.compact();
-        String tokenKey = "user_token:"+userNo;
-        redisTemplate.opsForValue().set(tokenKey,result,Integer.parseInt(exTime), TimeUnit.DAYS);
+        String tokenKey = "user_token:" + userNo;
+        redisTemplate.opsForValue().set(tokenKey, result, Integer.parseInt(exTime), TimeUnit.DAYS);
         return result;
     }
 
     public String getUid(String token) {
-        if(StringUtils.isBlank(token)){
+        if (StringUtils.isBlank(token)) {
             return null;
         }
         Claims claims = parseJWT(token);
-        if(claims==null){
+        if (claims == null) {
             return null;
         }
         return claims.get("user_no", String.class);
@@ -88,7 +87,7 @@ public class JwtUtil {
                 String key = Base64.getEncoder().encodeToString(secretKey.getBytes());
                 claims = Jwts.parser().setSigningKey(key)
                         .parseClaimsJws(token).getBody();
-            }else {
+            } else {
                 log.warn("token is empty!");
             }
         } catch (Exception e) {
