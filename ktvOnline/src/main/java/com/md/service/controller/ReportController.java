@@ -36,8 +36,8 @@ public class ReportController {
 
     @ApiOperation(value = "上报设备信息")
     @PostMapping("/device")
-    public BaseResult<?> reportDeviceInfo(String userNo, String sceneId, String appId, String projectId, @RequestBody CreateUserDeviceInfoReqForm reqForm) {
-        log.info("user post report device infos, name :");
+    public BaseResult<?> reportDeviceInfo(@RequestHeader("userNo") String userNo, String sceneId, String appId, String projectId, @RequestBody CreateUserDeviceInfoReqForm reqForm) {
+        log.info("user post report device infos, userNo:{}", userNo);
         CreateUserDeviceInfoForm form = new CreateUserDeviceInfoForm()
                 .setUserNo(userNo)
                 .setSceneId(sceneId)
@@ -55,7 +55,7 @@ public class ReportController {
 
     @ApiOperation(value = "拉取用户设备信息")
     @GetMapping("/device")
-    public BaseResult<?> listDeviceInfo(String userNo, String sceneId, String appId, String projectId, Integer last) {
+    public BaseResult<?> listDeviceInfo(@RequestHeader("userNo") String userNo, String sceneId, String appId, String projectId, Integer last) {
         log.info("user get report device infos, name :");
         DeviceRangeType rangeType = DeviceRangeType.getEnumValue(last);
         if (rangeType == null) {
@@ -68,8 +68,8 @@ public class ReportController {
 
     @ApiOperation(value = "上报用户使用的背景图片信息")
     @PostMapping("/background")
-    public BaseResult<?> reportBackground(String userNo, String sceneId, String appId, String projectId, @RequestBody CreateOrUpdateUserConfigReqForm reqForm) {
-        log.info("user report background infos, name :");
+    public BaseResult<?> reportBackground(@RequestHeader("userNo") String userNo, String sceneId, String appId, String projectId, @RequestBody CreateOrUpdateUserConfigReqForm reqForm) {
+        log.info("user report background infos, userNo:{}:", userNo);
         CreateOrUpdateUserConfigForm form = new CreateOrUpdateUserConfigForm()
                 .setUserNo(userNo)
                 .setAppId(appId)
@@ -82,7 +82,7 @@ public class ReportController {
 
     @ApiOperation(value = "拉取用户使用的背景图片信息")
     @GetMapping("/background")
-    public BaseResult<?> getBackground(String userNo, String sceneId, String appId, String projectId, Integer last) {
+    public BaseResult<?> getBackground(@RequestHeader("userNo") String userNo, String sceneId, String appId, String projectId, Integer last) {
         log.info("user get background infos, userNo:{},sceneId:{},appId:{},projectId:{},last:{}", userNo, sceneId, appId, projectId, last);
         DeviceRangeType rangeType = DeviceRangeType.getEnumValue(last);
         if (rangeType == null) {
@@ -94,8 +94,8 @@ public class ReportController {
 
     @ApiOperation(value = "上报用户行为记录")
     @PostMapping("/action")
-    public BaseResult<?> reportAction(String userNo, String sceneId, String appId, String projectId, @Validated @RequestBody CreateOrUpdateUserActionReqForm reqForm) {
-        log.info("user report action infos, name :");
+    public BaseResult<?> reportAction(@RequestHeader("userNo") String userNo, String sceneId, String appId, String projectId, @Validated @RequestBody CreateOrUpdateUserActionReqForm reqForm) {
+        log.info("user report action infos, name:");
         CreateOrUpdateUserActionForm form = new CreateOrUpdateUserActionForm()
                 .setUserNo(userNo)
                 .setAppId(appId)
@@ -109,7 +109,7 @@ public class ReportController {
 
     @ApiOperation(value = "拉取用户行为记录")
     @GetMapping("/action")
-    public BaseResult<?> getAction(String userNo, String sceneId, String appId, String projectId, Integer last) {
+    public BaseResult<?> getAction(@RequestHeader("userNo") String userNo, String sceneId, String appId, String projectId, Integer last) {
         log.info("user get action infos, userNo:{},sceneId:{},appId:{},projectId:{},last:{}", userNo, sceneId, appId, projectId, last);
         DeviceRangeType rangeType = DeviceRangeType.getEnumValue(last);
         if (rangeType == null) {

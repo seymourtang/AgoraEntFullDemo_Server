@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,15 +28,15 @@ public class RoomUsersController {
 
     @GetMapping("/openCamera")
     @ApiOperation("开摄像头")
-    public BaseResult<String> isVideoMuted(String roomNo,String userNo){
-        roomUsersService.isVideoMuted(roomNo,userNo);
+    public BaseResult<String> isVideoMuted(@RequestHeader("userNo") String userNo, String roomNo) {
+        roomUsersService.isVideoMuted(roomNo, userNo);
         return BaseResult.success();
     }
 
     @GetMapping("/ifQuiet")
     @ApiOperation("是否静音")
-    public BaseResult<String> isSelfMuted(String roomNo,String userNo){
-        roomUsersService.isSelfMuted(roomNo,userNo);
+    public BaseResult<String> isSelfMuted(@RequestHeader("userNo") String userNo, String roomNo) {
+        roomUsersService.isSelfMuted(roomNo, userNo);
         return BaseResult.success();
     }
 }

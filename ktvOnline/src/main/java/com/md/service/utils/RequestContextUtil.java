@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -42,8 +43,12 @@ public class RequestContextUtil {
 
     public static BaseUser getBaseUser() {
         HttpServletRequest request = getRequestFromContextHolder();
+        String useNo = request.getHeader("userNo");
+        if (StringUtils.isEmpty(useNo)) {
+            return null;
+        }
         BaseUser user = new BaseUser();
-        user.setUserNo(getUser(request));
+        user.setUserNo(useNo);
         return user;
     }
 
@@ -58,20 +63,5 @@ public class RequestContextUtil {
         Jws<Claims> claimsJws = Jwts.parser().setSigningKey(key)
                 .parseClaimsJws(token);
         return claimsJws.getBody();
-    }
-
-    public static String getUser(HttpServletRequest req) {
-        String encodedToken = req.getHeader("Authorization");
-//        log.info("【token】==========>" + encodedToken);
-        try {
-            Claims token = parseJWT(encodedToken);
-            if (token.containsKey("user_no")) {
-                return token.get("user_no").toString();
-            }
-            return null;
-        } catch (Exception e) {
-            log.error("jwt get token error",e);
-        }
-        return null;
     }
 }

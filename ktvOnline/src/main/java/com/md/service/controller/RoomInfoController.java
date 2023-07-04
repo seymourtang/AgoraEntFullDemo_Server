@@ -25,77 +25,79 @@ import javax.annotation.Resource;
 @Api(tags = "房间信息")
 @Slf4j
 @EnableSwagger2
-public class RoomInfoController extends BaseController{
+public class RoomInfoController extends BaseController {
 
     @Resource
     private RoomInfoService roomInfoService;
 
     @PostMapping("/createRoom")
     @ApiOperation("创建房间")
-    public BaseResult<String> createRoom(@RequestBody RoomCreateForm form){
-        log.info("createRoom form : {}",form);
+    public BaseResult<String> createRoom(@RequestHeader("userNo") String userNo, @RequestBody RoomCreateForm form) {
+        form.setUserNo(userNo);
+        log.info("userNo:{},createRoom form : {}", userNo, form);
         return BaseResult.success(roomInfoService.createRoom(form));
     }
 
     @PostMapping("/roomList")
     @ApiOperation("房间列表")
-    public BaseResult<IPage<RoomPageDTO>> roomList(@RequestBody Page form){
-        log.info("roomList form : {}",form);
+    public BaseResult<IPage<RoomPageDTO>> roomList(@RequestHeader("userNo") String userNo, @RequestBody Page form) {
+        log.info("userNo:{},roomList form : {}", userNo, form);
         return BaseResult.success(roomInfoService.roomList(form));
     }
 
     @PostMapping("/updateRoom")
     @ApiOperation("修改")
-    public BaseResult<?> updateRoom(@RequestBody RoomCreateForm form){
-        log.info("updateRoom form : {}",form);
+    public BaseResult<?> updateRoom(@RequestHeader("userNo") String userNo, @RequestBody RoomCreateForm form) {
+        form.setUserNo(userNo);
+        log.info("userNo:{},updateRoom form : {}", userNo, form);
         roomInfoService.updateRoom(form);
         return BaseResult.success();
     }
 
     @GetMapping("/getRoomInfo")
     @ApiOperation("获取+进入房间")
-    public BaseResult<RoomInfoDTO> getRoomInfo(String roomNo,String userNo,String password){
-        log.info("getRoomInfo form : {}",roomNo);
-        return BaseResult.success(roomInfoService.getRooInfo(roomNo,userNo,password));
+    public BaseResult<RoomInfoDTO> getRoomInfo(@RequestHeader("userNo") String userNo, String roomNo, String password) {
+        log.info("getRoomInfo userNo:{},roomNo:{},password:{}", userNo, roomNo, password);
+        return BaseResult.success(roomInfoService.getRooInfo(roomNo, userNo, password));
     }
 
     @GetMapping("/outRoom")
     @ApiOperation("退出房间")
-    public BaseResult<?> outRoom(String roomNo,String userNo){
-        log.info("outRoom form : {}",roomNo);
-        roomInfoService.outRoom(roomNo,userNo);
+    public BaseResult<?> outRoom(@RequestHeader("userNo") String userNo, String roomNo) {
+        log.info("outRoom form : {}", roomNo);
+        roomInfoService.outRoom(roomNo, userNo);
         return BaseResult.success();
     }
 
 
     @GetMapping("/closeRoom")
     @ApiOperation("关闭房间")
-    public BaseResult<?> closeRoom(String roomNo,String userNo){
-        log.info("closeRoom roomNo : {},userNo:{}",roomNo,userNo);
-        roomInfoService.closeRoom(roomNo,userNo);
+    public BaseResult<?> closeRoom(@RequestHeader("userNo") String userNo, String roomNo) {
+        log.info("closeRoom roomNo : {},userNo:{}", roomNo, userNo);
+        roomInfoService.closeRoom(roomNo, userNo);
         return BaseResult.success();
     }
 
     @GetMapping("/onSeat")
     @ApiOperation("上麦")
-    public BaseResult<String> onSeat(String roomNo,String userNo,Integer seat){
-        log.info("onSeat roomNo : {},userNo:{},seat:{}",roomNo,userNo,seat);
-        roomInfoService.onSeat(roomNo,userNo,seat);
+    public BaseResult<String> onSeat(@RequestHeader("userNo") String userNo, String roomNo, Integer seat) {
+        log.info("onSeat roomNo : {},userNo:{},seat:{}", roomNo, userNo, seat);
+        roomInfoService.onSeat(roomNo, userNo, seat);
         return BaseResult.success();
     }
 
     @GetMapping("/outSeat")
     @ApiOperation("下麦")
-    public BaseResult<String> outSeat(String roomNo,String userNo){
-        log.info("outSeat roomNo : {},userNo:{},seat:{}",roomNo);
-        roomInfoService.outSeat(roomNo,userNo);
+    public BaseResult<String> outSeat(@RequestHeader("userNo") String userNo, String roomNo) {
+        log.info("outSeat roomNo: {},userNo:{}", roomNo, userNo);
+        roomInfoService.outSeat(roomNo, userNo);
         return BaseResult.success();
     }
 
     @GetMapping("/getRoomNum")
     @ApiOperation("获取房间人数")
-    public BaseResult<?> getRoomNum(String roomNo){
-        log.info("getRoomNum roomNo :{}",roomNo);
+    public BaseResult<?> getRoomNum(@RequestHeader("userNo") String userNo, String roomNo) {
+        log.info("getRoomNum roomNo :{},userNo:{}", roomNo, userNo);
         return BaseResult.success(roomInfoService.getRoomNum(roomNo));
     }
 }

@@ -19,8 +19,8 @@ public class CallBackController {
 
     @PostMapping("/audit")
     @ApiOperation("语音审核回调")
-    public BaseResult<String> audit(@RequestBody String channelName , String uid, String streamType){
-        log.info("channelName : {} , uid:{} ,streamType:{} ",channelName,uid,streamType);
+    public BaseResult<String> audit(@RequestBody String channelName, String uid, String streamType) {
+        log.info("channelName : {} , uid:{} ,streamType:{} ", channelName, uid, streamType);
         return BaseResult.success();
     }
 }

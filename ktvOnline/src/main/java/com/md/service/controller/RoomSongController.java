@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,48 +31,54 @@ public class RoomSongController {
 
     @GetMapping("/chooseSong")
     @ApiOperation("点歌")
-    public BaseResult<String> chooseSong(ChooseSongForm form){
-        log.info("chooseSong form : {}",form);
+    public BaseResult<String> chooseSong(@RequestHeader("userNo") String userNo, ChooseSongForm form) {
+        form.setUserNo(userNo);
+        log.info("chooseSong form : {}", form);
         roomSongService.chooseSong(form);
         return BaseResult.success();
     }
 
     @GetMapping("/switchSong")
     @ApiOperation("切歌")
-    public BaseResult<String> switchSong(ChooseSongForm form){
-        log.info("switchSong form : {}",form);
+    public BaseResult<String> switchSong(@RequestHeader("userNo") String userNo, ChooseSongForm form) {
+        form.setUserNo(userNo);
+        log.info("switchSong form : {}", form);
         roomSongService.switchSong(form);
         return BaseResult.success();
     }
 
     @GetMapping("/over")
     @ApiOperation("唱完")
-    public BaseResult<String> over(ChooseSongForm form){
-        log.info("over form : {}",form);
+    public BaseResult<String> over(@RequestHeader("userNo") String userNo, ChooseSongForm form) {
+        form.setUserNo(userNo);
+        log.info("over form : {}", form);
         roomSongService.over(form);
         return BaseResult.success();
     }
 
     @GetMapping("/begin")
     @ApiOperation("开始唱歌")
-    public BaseResult<String> begin(ChooseSongForm form){
-        log.info("begin form : {}",form);
+    public BaseResult<String> begin(@RequestHeader("userNo") String userNo, ChooseSongForm form) {
+        form.setUserNo(userNo);
+        log.info("begin form : {}", form);
         roomSongService.begin(form);
         return BaseResult.success();
     }
 
     @GetMapping("/chorus")
     @ApiOperation("加入合唱")
-    public BaseResult<String> chorus(ChooseSongForm form){
-        log.info("chorus form : {}",form);
+    public BaseResult<String> chorus(@RequestHeader("userNo") String userNo, ChooseSongForm form) {
+        form.setUserNo(userNo);
+        log.info("chorus form : {}", form);
         roomSongService.chorus(form);
         return BaseResult.success();
     }
 
     @GetMapping("/cancelChorus")
     @ApiOperation("取消合唱")
-    public BaseResult<String> cancelChorus(ChooseSongForm form){
-        log.info("cancelChorus form : {}",form);
+    public BaseResult<String> cancelChorus(@RequestHeader("userNo") String userNo, ChooseSongForm form) {
+        form.setUserNo(userNo);
+        log.info("cancelChorus form : {}", form);
         roomSongService.cancelChorus(form);
         return BaseResult.success();
     }
@@ -79,24 +86,24 @@ public class RoomSongController {
 
     @GetMapping("/haveOrderedList")
     @ApiOperation("已点列表")
-    public BaseResult<List<RoomSongInfoDTO>> haveOrderedList(String roomNo){
-        log.info("haveOrderedList roomNo : {} ",roomNo);
+    public BaseResult<List<RoomSongInfoDTO>> haveOrderedList(@RequestHeader("userNo") String userNo, String roomNo) {
+        log.info("haveOrderedList roomNo : {} ,userNo:{}", roomNo, userNo);
         return BaseResult.success(roomSongService.haveOrderedList(roomNo));
     }
 
     @GetMapping("/toDevelop")
     @ApiOperation("置顶歌曲")
-    public BaseResult<?> toDevelop(String roomNo,String songNo,Integer sort){
-        log.info("toDevelop roomNo : {} ",roomNo);
-        roomSongService.toDevelop(roomNo,songNo,sort);
+    public BaseResult<?> toDevelop(@RequestHeader("userNo") String userNo, String roomNo, String songNo, Integer sort) {
+        log.info("toDevelop roomNo : {},userNo:{}", roomNo, userNo);
+        roomSongService.toDevelop(roomNo, songNo, sort);
         return BaseResult.success();
     }
 
     @GetMapping("/delSong")
     @ApiOperation("删除歌曲")
-    public BaseResult<?> delSong(String roomNo,String songNo,Integer sort){
-        log.info("haveOrderedList roomNo : {} ",roomNo);
-        roomSongService.delSong(roomNo,songNo,sort);
+    public BaseResult<?> delSong(@RequestHeader("userNo") String userNo, String roomNo, String songNo, Integer sort) {
+        log.info("haveOrderedList roomNo : {},userNo:{}", roomNo, userNo);
+        roomSongService.delSong(roomNo, songNo, sort);
         return BaseResult.success();
     }
 }
