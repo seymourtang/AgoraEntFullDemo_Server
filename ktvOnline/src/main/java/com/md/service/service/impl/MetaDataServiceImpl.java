@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class MetaDataServiceImpl extends ServiceImpl<MetaDataMapper, MetaData> implements MetaDataService {
     @Override
     public MetaDataDTO getMetaData(Integer key) {
-        MetaData metaData = baseMapper.selectOne(new QueryWrapper<MetaData>().eq("key", key));
+        MetaData metaData = baseMapper.selectOne(new QueryWrapper<MetaData>().eq("`key`", key));
         if (metaData == null) {
             return null;
         }

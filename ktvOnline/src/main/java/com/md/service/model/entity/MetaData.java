@@ -17,9 +17,11 @@ public class MetaData implements Serializable {
     private Integer id;
 
     @ApiModelProperty("key")
+    @TableField(value = "`key`")
     private Integer key;
 
     @ApiModelProperty("value")
+    @TableField(value = "`value`")
     private String value;
 
     @ApiModelProperty("创建时间")
