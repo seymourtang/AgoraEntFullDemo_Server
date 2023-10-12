@@ -14,7 +14,5 @@ public class MetaDataDTO {
 
     private String value;
 
-    private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 }

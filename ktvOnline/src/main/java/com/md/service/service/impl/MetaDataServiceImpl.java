@@ -19,7 +19,6 @@ public class MetaDataServiceImpl extends ServiceImpl<MetaDataMapper, MetaData> i
         return MetaDataDTO.builder()
                 .key(metaData.getKey())
                 .value(metaData.getValue())
-                .createdAt(metaData.getCreatedAt())
                 .updatedAt(metaData.getUpdatedAt())
                 .build();
     }
