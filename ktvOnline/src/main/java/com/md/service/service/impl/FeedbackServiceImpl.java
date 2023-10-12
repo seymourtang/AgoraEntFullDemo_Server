@@ -28,6 +28,6 @@ public class FeedbackServiceImpl extends ServiceImpl<FeedbackMapper, Feedback> i
                 .description(feedback.getDescription())
                 .logURL(feedback.getLogURL())
                 .build();
-        baseMapper.insertFeedback(toInsert);
+        baseMapper.insert(toInsert);
     }
 }

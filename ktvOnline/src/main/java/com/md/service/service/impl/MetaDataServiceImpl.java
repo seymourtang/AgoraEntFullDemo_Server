@@ -1,5 +1,6 @@
 package com.md.service.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.md.service.model.dto.MetaDataDTO;
 import com.md.service.model.entity.MetaData;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class MetaDataServiceImpl extends ServiceImpl<MetaDataMapper, MetaData> implements MetaDataService {
     @Override
     public MetaDataDTO getMetaData(Integer key) {
-        MetaData metaData = baseMapper.getMetaData(key);
+        MetaData metaData = baseMapper.selectOne(new QueryWrapper<MetaData>().eq("key", key));
         if (metaData == null) {
             return null;
         }
