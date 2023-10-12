@@ -1,6 +1,5 @@
 package com.md.service.utils;
 
-import com.alibaba.druid.support.json.JSONUtils;
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
@@ -11,7 +10,6 @@ import com.aliyun.oss.model.PutObjectRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,29 +23,79 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class UploadFile {
 
-    @Value("${al.oss.accessKeyId}")
+    @Value("${al.image.oss.accessKeyId}")
     private String accessKeyId;
 
-    @Value("${al.oss.endpoint}")
+    @Value("${al.image.oss.endpoint}")
     private String endpoint;
 
-    @Value("${al.oss.accessKeySecret}")
+    @Value("${al.image.oss.accessKeySecret}")
     private String accessKeySecret;
 
-    @Value("${al.oss.bucketName}")
+    @Value("${al.image.oss.bucketName}")
     private String bucketName;
 
-    @Value("${al.oss.objectName.url}")
+    @Value("${al.image.oss.objectName.url}")
     private String objectNameUrl;
 
-    @Value("${al.oss.objectNameCheck.url}")
+    @Value("${al.image.oss.objectNameCheck.url}")
     private String objectNameCheck;
+
+
+    @Value("${al.log.oss.accessKeyId}")
+    private String logAccessKeyId;
+
+    @Value("${al.log.oss.endpoint}")
+    private String logEndpoint;
+
+    @Value("${al.log.oss.accessKeySecret}")
+    private String logAccessKeySecret;
+
+    @Value("${al.log.oss.bucketName}")
+    private String logBucketName;
+
+    @Value("${al.log.oss.objectName.url}")
+    private String logObjectNameUrl;
 
     @Resource
     private YiTuUtils yiTuUtils;
 
     @Resource
-    private RedisTemplate<String,Object> redisTemplate;;
+    private RedisTemplate<String, Object> redisTemplate;
+
+
+    public String uploadLog(MultipartFile file, String objectName) {
+        OSS ossClient = new OSSClientBuilder().build(logEndpoint, logAccessKeyId, logAccessKeySecret);
+        try {
+            objectName = logObjectNameUrl + objectName;
+            PutObjectRequest putObjectRequest;
+            try {
+                putObjectRequest = new PutObjectRequest(logBucketName, objectName, new ByteArrayInputStream(file.getBytes()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            // 上传字符串
+            ossClient.putObject(putObjectRequest);
+            return "https://" + logBucketName + "." + logEndpoint + "/" + objectName;
+        } catch (OSSException oe) {
+            System.out.println("Caught an OSSException, which means your request made it to OSS, "
+                    + "but was rejected with an error response for some reason.");
+            System.out.println("Error Message:" + oe.getErrorMessage());
+            System.out.println("Error Code:" + oe.getErrorCode());
+            System.out.println("Request ID:" + oe.getRequestId());
+            System.out.println("Host ID:" + oe.getHostId());
+        } catch (ClientException ce) {
+            System.out.println("Caught an ClientException, which means the client encountered "
+                    + "a serious internal problem while trying to communicate with OSS, "
+                    + "such as not being able to access the network.");
+            System.out.println("Error Message:" + ce.getMessage());
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+        return null;
+    }
 
     public String uploadFile(MultipartFile file, String objectName) {
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
@@ -90,20 +138,20 @@ public class UploadFile {
         String keyPrefix = objectNameCheck + roomNo + "/" + userNo;
         try {
             String mark = "";
-            if(redisTemplate.hasKey(keyPrefix)){
+            if (redisTemplate.hasKey(keyPrefix)) {
                 mark = redisTemplate.opsForValue().get(keyPrefix).toString();
             }
             // 列举包含指定前缀的文件。默认列举100个文件。
-            ObjectListing objectListing = ossClient.listObjects(bucketName,keyPrefix);
+            ObjectListing objectListing = ossClient.listObjects(bucketName, keyPrefix);
             objectListing.setMarker(mark);
             List<OSSObjectSummary> sums = objectListing.getObjectSummaries();
-            log.info("keyPrefix：{}  sums size:{}",keyPrefix,sums.size());
+            log.info("keyPrefix：{}  sums size:{}", keyPrefix, sums.size());
             for (OSSObjectSummary s : sums) {
                 Thread.sleep(1000);
-                yiTuUtils.checkImage( "https://" + bucketName + "." + endpoint + "/" + s.getKey());
+                yiTuUtils.checkImage("https://" + bucketName + "." + endpoint + "/" + s.getKey());
                 mark = s.getKey();
             }
-            redisTemplate.opsForValue().set(keyPrefix,mark,7, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(keyPrefix, mark, 7, TimeUnit.DAYS);
         } catch (OSSException oe) {
             System.out.println("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");

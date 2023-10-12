@@ -334,3 +334,31 @@ create table `voice_room_user`
     PRIMARY KEY (`id`),
     UNIQUE KEY `uniq_voice_room_user_room_id_uid` (`room_id`, `uid`)
 ) engine = InnoDB default charset = utf8mb4 comment ='房间用户信息';
+
+drop table if exists `meta_data`;
+create table `meta_data`
+(
+    `id`        int(10) unsigned not null auto_increment comment 'id',
+    `key`      int(4)     not null comment 'key',
+    `value`       varchar(1024)     not null comment 'value',
+    `created_at`  timestamp(3)              default CURRENT_timestamp(3) not null comment '创建时间',
+    `updated_at`  timestamp(3)              default CURRENT_timestamp(3) not null on update CURRENT_timestamp(3) comment '最近修改时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_meta_data_key` (`key`)
+) engine = InnoDB default charset = utf8mb4 comment ='meta data 配置信息';
+
+drop table if exists `feedback`;
+create table `feedback`
+(
+    `id`              int(10) unsigned                           not null auto_increment comment 'id',
+    `user_no`         varchar(100)                               not null comment '用户no',
+    `name`            varchar(100)  default ''                   not null comment '昵称',
+    `tags`            varchar(100)  default ''                   not null comment '反馈标签',
+    `description`     varchar(512)  default ''                   not null comment '反馈描述',
+    `screenshot_urls` varchar(1024) default ''                   not null comment '反馈截图URL列表',
+    `log_url`         varchar(1024) default ''                   not null comment '上传日志URL',
+    `created_at`      timestamp(3)  default CURRENT_timestamp(3) not null comment '创建时间',
+    `updated_at`      timestamp(3)  default CURRENT_timestamp(3) not null on update CURRENT_timestamp(3) comment '最近修改时间',
+    PRIMARY KEY (`id`)
+) engine = InnoDB
+  default charset = utf8mb4 comment ='反馈内容';
