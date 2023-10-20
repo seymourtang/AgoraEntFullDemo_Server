@@ -25,4 +25,6 @@ public interface UserDeviceInfoService extends IService<UserDeviceInfo> {
      * @param lastDays
      */
     UserDeviceInfoListDTO getList(String appId, String userNo, String projectId, String sceneId, Integer lastDays);
+
+    void clearUserDeviceInfo(String mobile);
 }

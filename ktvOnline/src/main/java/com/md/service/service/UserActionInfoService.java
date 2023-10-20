@@ -22,4 +22,6 @@ public interface UserActionInfoService extends IService<UserActionInfo> {
      * @param lastDays
      */
     UserActionLastDTO getLastActionInfo(String appId, String userNo, String projectId, String sceneId, Integer lastDays);
+
+    void clearUserActionInfo(String mobile);
 }

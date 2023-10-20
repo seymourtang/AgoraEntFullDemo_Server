@@ -24,6 +24,7 @@ public class UserActionInfo implements Serializable {
     private String userNo;
 
     @ApiModelProperty("用户手机号")
+    @TableId(value = "mobile")
     private String mobile;
 
     @ApiModelProperty("AppId")
@@ -43,6 +44,10 @@ public class UserActionInfo implements Serializable {
 
     @ApiModelProperty("收集的行为次数")
     private Integer count;
+
+    @ApiModelProperty("删除")
+    @TableLogic
+    private LocalDateTime deletedAt;
 
     @ApiModelProperty("创建时间")
     @TableField(fill = FieldFill.INSERT)
