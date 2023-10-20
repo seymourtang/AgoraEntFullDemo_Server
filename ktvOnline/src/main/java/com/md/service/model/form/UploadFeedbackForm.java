@@ -9,7 +9,7 @@ import java.util.Map;
 @Data
 public class UploadFeedbackForm {
     @NotNull(message = "screenshotURLs cannot be empty")
-    private Map<Integer, String> screenshotURLs;
+    private Map<String, String> screenshotURLs;
 
     @NotNull
     private List<String> tags;

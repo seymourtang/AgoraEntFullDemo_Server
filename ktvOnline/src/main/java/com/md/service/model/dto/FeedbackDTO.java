@@ -11,7 +11,7 @@ import java.util.Map;
 public class FeedbackDTO {
     private String userNo;
 
-    private Map<Integer, String> screenshotURLs;
+    private Map<String, String> screenshotURLs;
 
     private List<String> tags;
 
