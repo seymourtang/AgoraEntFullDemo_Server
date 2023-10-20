@@ -51,10 +51,6 @@ public class UserDeviceInfo implements Serializable {
     @ApiModelProperty("制造商")
     private String manufacture;
 
-    @ApiModelProperty("删除")
-    @TableLogic
-    private LocalDateTime deletedAt;
-
     @ApiModelProperty("创建时间")
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
