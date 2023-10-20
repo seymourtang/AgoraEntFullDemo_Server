@@ -44,6 +44,10 @@ public class UserConfig implements Serializable {
     @TableField(value = "background_count")
     private Integer backgroundCount;
 
+    @ApiModelProperty("删除")
+    @TableLogic
+    private LocalDateTime deletedAt;
+
     @ApiModelProperty("创建时间")
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
