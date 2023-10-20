@@ -46,7 +46,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Resource
     private AliSmsSingleSender aliSmsSingleSender;
 
-    @Value("${verification_code.time}")
+    @Value("${verification.code.time}")
     private Integer codeTime;
 
     @Value("${verification.send.code.times}")
