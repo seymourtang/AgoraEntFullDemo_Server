@@ -24,7 +24,7 @@ public class UserConfig implements Serializable {
     private String userNo;
 
     @ApiModelProperty("用户手机号")
-    @TableId(value = "mobile")
+    @TableField(value = "mobile")
     private String mobile;
 
     @ApiModelProperty("AppId")
