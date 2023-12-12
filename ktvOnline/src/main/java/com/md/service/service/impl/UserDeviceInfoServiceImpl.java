@@ -127,4 +127,9 @@ public class UserDeviceInfoServiceImpl extends ServiceImpl<UserDeviceInfoMapper,
 
         return userDeviceInfoListDTO;
     }
+
+    @Override
+    public void clearUserDeviceInfo(String mobile) {
+        baseMapper.delete(Wrappers.<UserDeviceInfo>lambdaQuery().eq(UserDeviceInfo::getMobile, mobile));
+    }
 }

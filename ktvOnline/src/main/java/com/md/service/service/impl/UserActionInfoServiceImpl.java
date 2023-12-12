@@ -72,4 +72,10 @@ public class UserActionInfoServiceImpl extends ServiceImpl<UserActionInfoMapper,
                 .setLastAction(userActionInfoList.get(0).getAction())
                 .setCount(sum);
     }
+
+    @Override
+    public void clearUserActionInfo(String mobile) {
+        baseMapper.delete(Wrappers.<UserActionInfo>query().lambda()
+                .eq(UserActionInfo::getMobile, mobile));
+    }
 }

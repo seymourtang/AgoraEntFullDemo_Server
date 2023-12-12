@@ -23,4 +23,6 @@ public interface UserConfigService extends IService<UserConfig> {
      * @param lastDays
      */
     UserConfigLastBackgroundDTO getLastBackgroundInfo(String appId, String userNo, String projectId, String sceneId, Integer lastDays);
+
+    void clearUserConfig(String mobile);
 }

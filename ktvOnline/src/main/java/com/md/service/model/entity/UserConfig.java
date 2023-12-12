@@ -24,6 +24,7 @@ public class UserConfig implements Serializable {
     private String userNo;
 
     @ApiModelProperty("用户手机号")
+    @TableField(value = "mobile")
     private String mobile;
 
     @ApiModelProperty("AppId")
@@ -42,6 +43,10 @@ public class UserConfig implements Serializable {
     @ApiModelProperty("收集用户背景图片次数")
     @TableField(value = "background_count")
     private Integer backgroundCount;
+
+    @ApiModelProperty("删除")
+    @TableLogic
+    private LocalDateTime deletedAt;
 
     @ApiModelProperty("创建时间")
     @TableField(fill = FieldFill.INSERT)

@@ -63,4 +63,10 @@ public class UserConfigServiceImpl extends ServiceImpl<UserConfigMapper, UserCon
                 .setCount(sum);
         return userConfigLastBackgroundDTO;
     }
+
+    @Override
+    public void clearUserConfig(String mobile) {
+        baseMapper.delete(Wrappers.<UserConfig>query().lambda()
+                .eq(UserConfig::getMobile, mobile));
+    }
 }

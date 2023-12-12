@@ -28,7 +28,7 @@ import javax.annotation.Resource;
 @Slf4j
 @Api(tags = "用户管理")
 @EnableSwagger2
-public class UsersController extends BaseController{
+public class UsersController extends BaseController {
 
     @Resource
     private UsersService usersService;
@@ -38,68 +38,68 @@ public class UsersController extends BaseController{
 
     @GetMapping("/verificationCode")
     @ApiOperation("发送验证码")
-    public BaseResult<String> verificationCode(String phone){
-        log.info("verificationCode form : {}",phone);
+    public BaseResult<String> verificationCode(String phone) {
+        log.info("verificationCode form : {}", phone);
         BaseResult<String> result = usersService.verificationCode(phone);
-        log.info("verificationCode result :{}",result);
+        log.info("verificationCode result :{}", result);
         return result;
     }
 
     @GetMapping("/login")
     @ApiOperation("登录")
-    public BaseResult<UserInfo> login(String phone, String code){
-        log.info("login form : {}",phone);
-        BaseResult<UserInfo> result = usersService.login(phone,code);
-        log.info("login result :{}",result);
+    public BaseResult<UserInfo> login(String phone, String code) {
+        log.info("login form : {}", phone);
+        BaseResult<UserInfo> result = usersService.login(phone, code);
+        log.info("login result :{}", result);
         return result;
     }
 
     @PostMapping("/update")
     @ApiOperation("修改用户信息")
-    public BaseResult<UserInfo> update(@RequestBody UpdateUserInfoForm form){
-        log.info("update form : {}",form);
+    public BaseResult<UserInfo> update(@RequestHeader("userNo") String userNo, @RequestBody UpdateUserInfoForm form) {
+        form.setUserNo(userNo);
+        log.info("update form : {}", form);
         BaseResult<UserInfo> result = usersService.updateInfo(form);
-        log.info("update result :{}",result);
+        log.info("update result :{}", result);
         return result;
     }
 
     @GetMapping("/cancellation")
     @ApiOperation("注销用户")
-    public BaseResult<?> cancellation(String userNo){
+    public BaseResult<?> cancellation(@RequestHeader("userNo") String userNo) {
+        log.info("cancellation userNo:{}", userNo);
         BaseResult<?> result = usersService.cancellation(userNo);
-        log.info("cancellation result :{}",result);
+        log.info("cancellation userNo:{},result :{}", userNo, result);
         return result;
     }
 
     @GetMapping("/getUserInfo")
     @ApiOperation("获取用户信息")
-    public BaseResult<?> getUserInfo(String userNo){
+    public BaseResult<?> getUserInfo(@RequestHeader("userNo") String userNo) {
         BaseResult<?> result = usersService.getUserInfo(userNo);
-        log.info("getUserInfo result :{}",result);
+        log.info("getUserInfo userNo:{},result:{}", userNo, result);
         return result;
     }
 
     @PostMapping("/userList")
     @ApiOperation("用户列表")
-    public BaseResult<IPage<Users>> roomList(@RequestBody Page form){
-        log.info("roomList form : {}",form);
+    public BaseResult<IPage<Users>> roomList(@RequestHeader("userNo") String userNo, @RequestBody Page form) {
+        log.info("roomList userNo:{},form:{}", userNo, form);
         return BaseResult.success(usersService.userList(form));
     }
 
     @GetMapping("/getToken")
     @ApiOperation("获取token")
-    public BaseResult<?> getToken(Integer userId,String roomNo) throws Exception {
+    public BaseResult<?> getToken(@RequestHeader("userNo") String userNo, Integer userId, String roomNo) throws Exception {
         JSONObject result = new JSONObject();
-        if(StringUtils.isEmpty(roomNo)){
+        if (StringUtils.isEmpty(roomNo)) {
             roomNo = "";
         }
-        String token = rtmTokenBuilderSample.getToken(userId,roomNo);
-        String rtcToken = rtmTokenBuilderSample.getRtcToken(userId,roomNo);
-        result.put("token",token);
-        result.put("rtcToken",rtcToken);
-//        result.put("agoraRTMToken",token);
-//        result.put("agoraRTCToken",rtcToken);
-        log.info("getUserInfo result :{}",result);
+        String token = rtmTokenBuilderSample.getToken(userId, roomNo);
+        String rtcToken = rtmTokenBuilderSample.getRtcToken(userId, roomNo);
+        result.put("token", token);
+        result.put("rtcToken", rtcToken);
+        log.info("getUserInfo userNo:{},result :{}", userNo, result);
         return BaseResult.success(result);
     }
 }

@@ -18,7 +18,7 @@ public class HealthController {
 
     @GetMapping("/health")
     @ApiOperation("健康检查")
-    public BaseResult<String> health(){
+    public BaseResult<String> health() {
         return BaseResult.success();
     }
 }
