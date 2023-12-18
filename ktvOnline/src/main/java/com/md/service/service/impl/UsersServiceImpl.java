@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -59,7 +60,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     private Integer errorTime;
 
     @Value("${verification.code.superCode}")
-    private String superCode;
+    private String superCodeRegexPattern;
 
     @Value("${verification.code.superCodeValidation}")
     private boolean superCodeValidation;
@@ -114,12 +115,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public BaseResult<UserInfo> login(String phone, String code) {
         UserInfo userInfo = new UserInfo();
-        if (!redisTemplate.hasKey(phone) && superCodeValidation && !superCode.equals(code)) {
+        if (!redisTemplate.hasKey(phone) && superCodeValidation && !Pattern.matches(superCodeRegexPattern, code)) {
             throw new BaseException(ErrorCodeEnum.no_code, ErrorCodeEnum.no_code.getMessage());
         }
         String redisCode = String.valueOf(redisTemplate.opsForValue().get(phone));
         //认证成功记录用户信息
-        if (StringUtils.isNoneEmpty(code) && code.equals(redisCode) || superCodeValidation && superCode.equals(code)) {
+        if (StringUtils.isNoneEmpty(code) && code.equals(redisCode) || superCodeValidation && Pattern.matches(superCodeRegexPattern, code)) {
             Users users = this.baseMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getMobile, phone));
             if (users == null) {
                 users = new Users();
