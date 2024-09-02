@@ -107,7 +107,10 @@ public class UploadFile {
             objectName = objectNameUrl + objectName;
             PutObjectRequest putObjectRequest = null;
             try {
+                ObjectMetadata objectMetadata=new ObjectMetadata();
+                objectMetadata.setContentDisposition("attachment");
                 putObjectRequest = new PutObjectRequest(bucketName, objectName, new ByteArrayInputStream(file.getBytes()));
+                putObjectRequest.setMetadata(objectMetadata);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

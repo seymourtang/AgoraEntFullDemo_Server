@@ -30,6 +30,11 @@ public class UploadFileController {
         log.info("upload file userNo:{}", userNo);
         String fileName = file.getOriginalFilename();
         String prefix = fileName.substring(fileName.lastIndexOf("."));
+        log.info("filename:{},prefix:{}",fileName, prefix);
+        if(!prefix.equals(".jpg") && !prefix.equals(".jpeg") && !prefix.equals(".png") && !prefix.equals(".gif")){
+            throw new BaseException(ErrorCodeEnum.invalid_file_format);
+        }
+
         String name = System.currentTimeMillis() + MdStringUtils.randomDelete("random", 5) + prefix;
         String url = "";
         url = uploadFile.uploadFile(file, name);
