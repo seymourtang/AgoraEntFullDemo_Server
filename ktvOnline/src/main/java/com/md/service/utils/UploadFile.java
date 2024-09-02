@@ -6,6 +6,7 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.model.OSSObjectSummary;
 import com.aliyun.oss.model.ObjectListing;
+import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,7 +71,10 @@ public class UploadFile {
             objectName = logObjectNameUrl + objectName;
             PutObjectRequest putObjectRequest;
             try {
+                ObjectMetadata objectMetadata=new ObjectMetadata();
+                objectMetadata.setContentDisposition("attachment");
                 putObjectRequest = new PutObjectRequest(logBucketName, objectName, new ByteArrayInputStream(file.getBytes()));
+                putObjectRequest.setMetadata(objectMetadata);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

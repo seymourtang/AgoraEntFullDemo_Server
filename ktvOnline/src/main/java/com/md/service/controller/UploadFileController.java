@@ -1,6 +1,8 @@
 package com.md.service.controller;
 
 import cn.hutool.json.JSONObject;
+import com.md.service.common.ErrorCodeEnum;
+import com.md.service.exception.BaseException;
 import com.md.service.model.BaseResult;
 import com.md.service.utils.MdStringUtils;
 import com.md.service.utils.UploadFile;
@@ -42,6 +44,10 @@ public class UploadFileController {
         log.info("upload file userNo:{}", userNo);
         String fileName = file.getOriginalFilename();
         String prefix = fileName.substring(fileName.lastIndexOf("."));
+        log.info("filename:{},prefix:{}",fileName, prefix);
+        if(!prefix.equals(".zip")){
+            throw new BaseException(ErrorCodeEnum.invalid_file_format);
+        }
         String name = System.currentTimeMillis() + MdStringUtils.randomDelete("random", 5) + prefix;
         String url = "";
         url = uploadFile.uploadLog(file, name);

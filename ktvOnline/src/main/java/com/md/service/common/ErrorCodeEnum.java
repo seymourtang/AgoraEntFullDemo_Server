@@ -45,6 +45,8 @@ public enum ErrorCodeEnum {
 
     please_dont_upload_contains_politically_sensitive_content(90003,"请不要上传包含政治敏感内容"),
 
+    invalid_file_format(90004,"无效的文件格式"),
+
     mic_init_error(50000,"麦位初始化失败"),
     mic_init_already(50001,"麦位已经初始化"),
     add_mic_apply_error(50002,"申请上麦失败"),
