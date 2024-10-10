@@ -1,4 +1,4 @@
-.PHONY: build run-ktv-online
+.PHONY: build-ktv-online run-ktv-online
 build-ktv-online:
 	@mvn clean package -f ./ktvOnline/pom.xml
 
