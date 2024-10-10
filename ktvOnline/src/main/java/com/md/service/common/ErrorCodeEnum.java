@@ -39,9 +39,9 @@ public enum ErrorCodeEnum {
     upload_failed(90001,"上传图片失败"),
 
     /**
-     * 请不要上传污秽内容
+     * 请不要上传非法内容
      */
-    please_dont_upload_cmpurity_content(90002,"请不要上传污秽内容"),
+    please_dont_upload_illegal_content(90002,"请不要上传非法内容"),
 
     please_dont_upload_contains_politically_sensitive_content(90003,"请不要上传包含政治敏感内容"),
 
