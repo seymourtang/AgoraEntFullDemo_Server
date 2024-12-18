@@ -1,13 +1,13 @@
 package com.md.service.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -43,10 +43,12 @@ public class Users implements Serializable {
     @ApiModelProperty("用户手机号")
     private String mobile;
 
+    @ApiModelProperty("用户实名认证状态，0未认证，1已认证")
+    private Integer realNameVerifyStatus;
+
     @ApiModelProperty("创建时间")
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
-
 
     @ApiModelProperty("修改时间")
     @TableField(fill = FieldFill.INSERT_UPDATE)
@@ -55,12 +57,10 @@ public class Users implements Serializable {
     @ApiModelProperty("用户状态")
     private Integer status;
 
-
     @ApiModelProperty("删除")
     @TableLogic
     private LocalDateTime deletedAt;
 
     private Integer role;
-
 
 }

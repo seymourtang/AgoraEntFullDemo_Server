@@ -29,6 +29,9 @@ public class UserInfo {
     @ApiModelProperty("用户手机号")
     private String mobile;
 
+    @ApiModelProperty("用户实名认证状态，0未认证，1已认证")
+    private Integer realNameVerifyStatus;
+
     @ApiModelProperty("用户状态")
     private Integer status;
 

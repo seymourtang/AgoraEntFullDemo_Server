@@ -6,3 +6,5 @@ target
 logs
 .DS_Store
 application-local.properties
+.vscode
+config/application.properties

@@ -27,6 +27,11 @@ public interface CommonKey {
      */
     String verificationSendCodeTimes = "verification_send_code_times:";
 
+
+    String realNameFailedTimes = "real_name_failed_times:";
+
+    String realNameFailedTimesLock = "real_name_failed_times_lock:";
+
     /**
      * 验证码验证次数
      */

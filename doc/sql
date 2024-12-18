@@ -7,6 +7,7 @@ CREATE TABLE `users` (
   `head_url` varchar(500) NOT NULL DEFAULT '' COMMENT '用户头像',
   `sex` char(1) NOT NULL DEFAULT '' COMMENT '用户性别 w 女 m 男 x 未知',
   `mobile` varchar(20) NOT NULL DEFAULT '' COMMENT '用户手机号',
+  `real_name_verify_status` TINYINT NOT NULL DEFAULT '0'  COMMENT '实名认证状态:1通过,0未认证',
   `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
   `updated_at` timestamp NULL DEFAULT NULL COMMENT '修改时间',
   `status` int NOT NULL DEFAULT '0' COMMENT '用户状态',
@@ -316,6 +317,7 @@ create table `user`
     `name`      varchar(100)     not null comment '昵称',
     `portrait`  varchar(100)     not null comment '头像',
     `device_id` varchar(100)     not null comment '设备id',
+    ``
     `phone`     varchar(20) comment '手机号',
     `created_at`            timestamp(3)              default CURRENT_timestamp(3) not null comment '创建时间',
     `updated_at`            timestamp(3)              default CURRENT_timestamp(3) not null on update CURRENT_timestamp(3) comment '最近修改时间',
@@ -365,3 +367,37 @@ create table `feedback`
     PRIMARY KEY (`id`)
 ) engine = InnoDB
   default charset = utf8mb4 comment ='反馈内容';
+
+
+CREATE TABLE `user_verification`
+(
+    `id`                BIGINT PRIMARY KEY                        not null AUTO_INCREMENT,
+    `user_no`           varchar(100)                              not null comment '用户no',
+    `verify_batch_id`   varchar(32)                               NOT NULL COMMENT '成功认证的批次号',
+    `real_name_cipher`  varchar(64)                               NOT NULL COMMENT '加密后的真实姓名',
+    `id_card_cipher`    varchar(64)                               NOT NULL COMMENT '加密后的身份证号',
+    `verify_success_at` timestamp(3) default CURRENT_timestamp(3) not null comment '认证成功时间',
+    `created_at`        timestamp(3) default CURRENT_timestamp(3) not null comment '创建时间',
+    `updated_at`        timestamp(3) default CURRENT_timestamp(3) not null on update CURRENT_timestamp(3) comment '最近修改时间',
+    UNIQUE KEY uk_user_id (user_no),
+    INDEX idx_batch_id (verify_batch_id)
+) engine = InnoDB
+  default charset = utf8mb4 comment ='用户认证信息表';
+
+CREATE TABLE user_verification_log
+(
+    `id`               BIGINT PRIMARY KEY                        not null AUTO_INCREMENT,
+    `verify_batch_id`  varchar(32)                               NOT NULL COMMENT '成功认证的批次号',
+    `user_no`          varchar(100)                              not null comment '用户no',
+    `verify_result`    TINYINT                                   NOT NULL COMMENT '认证结果:1通过,0失败',
+    `real_name_cipher` varchar(64)                               NOT NULL COMMENT '加密后的真实姓名',
+    `id_card_cipher`   varchar(64)                               NOT NULL COMMENT '加密后身份证号',
+    `verify_remark`    varchar(255)                              NOT NULL DEFAULT '' COMMENT '认证备注/失败原因',
+    `created_at`       timestamp(3) default CURRENT_timestamp(3) not null comment '创建时间',
+    `updated_at`       timestamp(3) default CURRENT_timestamp(3) not null on update CURRENT_timestamp(3) comment '最近修改时间',
+    INDEX idx_user_id (user_no),
+    INDEX idx_batch_id (verify_batch_id)
+) engine = InnoDB
+  default charset = utf8mb4 COMMENT ='用户认证日志表';
+
+

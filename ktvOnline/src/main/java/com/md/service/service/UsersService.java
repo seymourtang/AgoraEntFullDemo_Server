@@ -32,4 +32,6 @@ public interface UsersService extends IService<Users> {
     String getUserNoById(Integer id);
 
     IPage<Users> userList(Page form);
+
+    void realNameAuth(String userNo, String realName, String idCard) throws  Exception;
 }

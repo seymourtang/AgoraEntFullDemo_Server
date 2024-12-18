@@ -7,22 +7,24 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.md.service.common.CommonKey;
-import com.md.service.common.ErrorCodeEnum;
-import com.md.service.common.RoomStatus;
-import com.md.service.common.UserRandomInfo;
+import com.md.service.common.*;
 import com.md.service.exception.BaseException;
 import com.md.service.model.BaseResult;
+import com.md.service.model.dto.RealNameAuthDTO;
 import com.md.service.model.dto.UserInfo;
 import com.md.service.model.entity.RoomInfo;
 import com.md.service.model.entity.RoomUsers;
 import com.md.service.model.entity.Users;
+import com.md.service.model.form.CreateUserVerificationForm;
+import com.md.service.model.form.CreateUserVerificationLogForm;
 import com.md.service.model.form.UpdateUserInfoForm;
 import com.md.service.repository.UsersMapper;
 import com.md.service.service.*;
 import com.md.service.utils.*;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.security.Credential;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -65,6 +69,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Value("${verification.code.superCodeValidation}")
     private boolean superCodeValidation;
 
+    @Value("${realNameAuth.encryptionKey}")
+    private String encryptionKey;
 
     @Resource
     private JwtUtil jwtUtil;
@@ -87,6 +93,20 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Resource
     private UserDeviceInfoService userDeviceInfoService;
 
+    @Resource
+    private RealNameAuthService realNameAuthService;
+
+    @Resource
+    private UserVerificationService userVerificationService;
+
+    @Resource
+    private UserVerificationLogService userVerificationLogService;
+
+    @Resource
+    private RedissonClient redissonClient;
+
+    private final String realNameAuthTimesLimiterLuaScript = "";
+
     @Override
     public BaseResult<String> verificationCode(String phone) {
         if (redisTemplate.hasKey(phone)) {
@@ -102,8 +122,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             }
         }
         redisTemplate.opsForValue().increment(CommonKey.verificationSendCodeTimes + phone);
-        redisTemplate.expire(CommonKey.verificationSendCodeTimes + phone, MdStringUtils.getRemainSecondsOneDay(), TimeUnit.SECONDS);
-        //发送短信
+        redisTemplate.expire(CommonKey.verificationSendCodeTimes + phone, MdStringUtils.getRemainSecondsOneDay(),
+                TimeUnit.SECONDS);
+        // 发送短信
         String code = MdStringUtils.verificationCode();
         JSONObject jsonObject = new JSONObject();
         jsonObject.set("code", code);
@@ -119,8 +140,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             throw new BaseException(ErrorCodeEnum.no_code, ErrorCodeEnum.no_code.getMessage());
         }
         String redisCode = String.valueOf(redisTemplate.opsForValue().get(phone));
-        //认证成功记录用户信息
-        if (StringUtils.isNoneEmpty(code) && code.equals(redisCode) || superCodeValidation && Pattern.matches(superCodeRegexPattern, code)) {
+        // 认证成功记录用户信息
+        if (StringUtils.isNoneEmpty(code) && code.equals(redisCode)
+                || superCodeValidation && Pattern.matches(superCodeRegexPattern, code)) {
             Users users = this.baseMapper.selectOne(new LambdaQueryWrapper<Users>().eq(Users::getMobile, phone));
             if (users == null) {
                 users = new Users();
@@ -134,13 +156,15 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             BeanUtil.copyProperties(users, userInfo);
         } else {
             Long times = redisTemplate.opsForValue().increment(CommonKey.verificationCheckCodeTimes + phone);
-            redisTemplate.expire(CommonKey.verificationCheckCodeTimes + phone, MdStringUtils.getRemainSecondsOneDay(), TimeUnit.SECONDS);
+            redisTemplate.expire(CommonKey.verificationCheckCodeTimes + phone, MdStringUtils.getRemainSecondsOneDay(),
+                    TimeUnit.SECONDS);
             if (redisTemplate.hasKey(CommonKey.verificationCheckCodeTimes + phone)) {
                 if (times.intValue() >= errorLock) {
                     if (redisTemplate.hasKey(CommonKey.verificationCheckCodeTimesLock + phone)) {
                         throw new BaseException(ErrorCodeEnum.code_error_lock);
                     } else {
-                        redisTemplate.opsForValue().set(CommonKey.verificationCheckCodeTimesLock + phone, "1", errorTime, TimeUnit.MINUTES);
+                        redisTemplate.opsForValue().set(CommonKey.verificationCheckCodeTimesLock + phone, "1",
+                                errorTime, TimeUnit.MINUTES);
                     }
                 }
             }
@@ -175,10 +199,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     public BaseResult<?> cancellation(String no) {
         Users users = getUserByNo(no);
         baseMapper.deleteById(users);
-        //注销后 全部下座位
-        roomUsersService.update(new LambdaUpdateWrapper<RoomUsers>().eq(RoomUsers::getUserId, users.getId()).
-                set(RoomUsers::getOnSeat, 0).set(RoomUsers::getDeletedAt, LocalDateTime.now()));
-        //关闭所有房间
+        // 注销后 全部下座位
+        roomUsersService.update(new LambdaUpdateWrapper<RoomUsers>().eq(RoomUsers::getUserId, users.getId())
+                .set(RoomUsers::getOnSeat, 0).set(RoomUsers::getDeletedAt, LocalDateTime.now()));
+        // 关闭所有房间
         roomInfoService.update(new LambdaUpdateWrapper<RoomInfo>().eq(RoomInfo::getCreator, users.getId())
                 .set(RoomInfo::getStatus, 1));
         userActionInfoService.clearUserActionInfo(users.getMobile());
@@ -221,8 +245,95 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public IPage<Users> userList(Page page) {
-        IPage<Users> list = baseMapper.selectPage(page, new LambdaQueryWrapper<Users>().
-                eq(Users::getStatus, RoomStatus.OPEN).orderByDesc(Users::getCreatedAt));
-        return list;
+        return baseMapper.selectPage(page,
+                new LambdaQueryWrapper<Users>().eq(Users::getStatus, RoomStatus.OPEN).orderByDesc(Users::getCreatedAt));
     }
+
+    @Override
+    public void realNameAuth(String userNo, String realName, String idCard) throws Exception {
+        RLock rlock = redissonClient.getLock(userNo);
+        try {
+            if (rlock.tryLock(10, TimeUnit.SECONDS)) {
+                realNameAuthWithNoLock(userNo, realName, idCard);
+            } else {
+                throw new BaseException(ErrorCodeEnum.system_error);
+            }
+        } catch (InterruptedException e) {
+            throw new BaseException(ErrorCodeEnum.real_name_auth_conflict,
+                    ErrorCodeEnum.real_name_auth_conflict.getMessage());
+        } finally {
+            rlock.unlock();
+        }
+    }
+
+    public void realNameAuthWithNoLock(String userNo, String realName, String idCard) throws Exception {
+        Users user = getUserByNo(userNo);
+        // 检查是否已经实名认证
+        if (Objects.equals(user.getRealNameVerifyStatus(), UserVerificationStatus.Success.getCode())) {
+            throw new BaseException(ErrorCodeEnum.real_name_auth_exist,
+                    ErrorCodeEnum.real_name_auth_exist.getMessage());
+        }
+
+        String bachId = UUID.randomUUID().toString().toLowerCase().replaceAll("-", "");
+        String realNameCipher = Utils.aesEncrypt(realName, encryptionKey);
+        String idCardCipher = Utils.aesEncrypt(idCard, encryptionKey);
+
+        RealNameAuthDTO realNameAuthResult = realNameAuthService.auth(realName, idCard);
+        if (realNameAuthResult.getCode().equals("200")) {
+            if (realNameAuthResult.getResult().equals("1")) {
+                userVerificationLogService.createUserVerificationLog(CreateUserVerificationLogForm.builder()
+                        .userNo(userNo)
+                        .realNameCipher(realNameCipher)
+                        .idCardCipher(idCardCipher)
+                        .verifyBatchId(bachId)
+                        .verifyResult(VerificationResult.Success.getCode())
+                        .build());
+
+                userVerificationService.createUserVerification(CreateUserVerificationForm.builder()
+                        .userNo(userNo)
+                        .verifyBatchId(bachId)
+                        .verifyStatus(UserVerificationStatus.Success.getCode())
+                        .realNameCipher(realNameCipher)
+                        .idCardCipher(idCardCipher)
+                        .verifySuccessAt(LocalDateTime.now())
+                        .build());
+
+                user.setRealNameVerifyStatus(UserVerificationStatus.Success.getCode());
+                baseMapper.updateById(user);
+
+                return;
+            }
+            // 认证失败,记录日志
+            userVerificationLogService.createUserVerificationLog(CreateUserVerificationLogForm.builder()
+                    .userNo(userNo)
+                    .realNameCipher(realNameCipher)
+                    .idCardCipher(idCardCipher)
+                    .verifyBatchId(bachId)
+                    .verifyResult(VerificationResult.Failed.getCode())
+                    .verifyRemark(JsonUtil.toJsonString(realNameAuthResult))
+                    .build());
+            // TODO:记录认证失败错误次数
+
+            throw new BaseException(ErrorCodeEnum.real_name_auth_inconsistent,
+                    ErrorCodeEnum.real_name_auth_inconsistent.getMessage());
+
+        }
+        userVerificationLogService.createUserVerificationLog(CreateUserVerificationLogForm.builder()
+                .userNo(userNo)
+                .realNameCipher(realNameCipher)
+                .idCardCipher(idCardCipher)
+                .verifyBatchId(bachId)
+                .verifyResult(VerificationResult.Failed.getCode())
+                .verifyRemark(JsonUtil.toJsonString(realNameAuthResult))
+                .build());
+
+        if (realNameAuthResult.getCode().equals("401")) {
+            throw new BaseException(ErrorCodeEnum.real_name_auth_param_illegal,
+                    ErrorCodeEnum.real_name_auth_param_illegal.getMessage());
+        }
+
+        throw new BaseException(ErrorCodeEnum.real_name_auth_unknown_err,
+                ErrorCodeEnum.real_name_auth_unknown_err.getMessage());
+    }
+
 }
