@@ -22,6 +22,7 @@ public enum ErrorCodeEnum {
     real_name_auth_unknown_err(10011, "用户实名认证失败，未知错误"),
     real_name_auth_inconsistent(10012, "用户实名认证校验不⼀致"),
     real_name_auth_param_illegal(10013, "用户实名参数非法"),
+    real_name_auth_exceed_limit(10014, "用户实名认证次数超限"),
 
     /**
      * 房间

@@ -28,10 +28,21 @@ public interface CommonKey {
     String verificationSendCodeTimes = "verification_send_code_times:";
 
 
-    String realNameFailedTimes = "real_name_failed_times:";
+    /**
+     * 实名认证分布式锁
+     */
+    String real_name_auth_lock = "real_name_auth:";
 
-    String realNameFailedTimesLock = "real_name_failed_times_lock:";
 
+    /**
+     * 实名认证黑名单
+     */
+    String real_name_auth_blacklist = "real_name_auth_blacklist:";
+
+    /**
+     * 实名认证错误次数
+     */
+    String real_name_auth_err_times = "real_name_auth_err_times:";
     /**
      * 验证码验证次数
      */

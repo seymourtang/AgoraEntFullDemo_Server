@@ -105,7 +105,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Resource
     private RedissonClient redissonClient;
 
-    private final String realNameAuthTimesLimiterLuaScript = "";
+    @Value("${realNameAuth.errTimesThreshold}")
+    private Integer realNameAuthErrTimesThreshold;
 
     @Override
     public BaseResult<String> verificationCode(String phone) {
@@ -251,9 +252,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public void realNameAuth(String userNo, String realName, String idCard) throws Exception {
-        RLock rlock = redissonClient.getLock(userNo);
+        RLock rlock = redissonClient.getLock(CommonKey.real_name_auth_lock + userNo);
         try {
-            if (rlock.tryLock(10, TimeUnit.SECONDS)) {
+            if (rlock.tryLock()) {
                 realNameAuthWithNoLock(userNo, realName, idCard);
             } else {
                 throw new BaseException(ErrorCodeEnum.system_error);
@@ -267,6 +268,13 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     }
 
     public void realNameAuthWithNoLock(String userNo, String realName, String idCard) throws Exception {
+        // 检查是否在黑名单中
+        Boolean hasBlocked = redisTemplate.hasKey(CommonKey.real_name_auth_blacklist + userNo);
+        if (hasBlocked) {
+            throw new BaseException(ErrorCodeEnum.real_name_auth_exceed_limit,
+                    ErrorCodeEnum.real_name_auth_exceed_limit.getMessage());
+        }
+
         Users user = getUserByNo(userNo);
         // 检查是否已经实名认证
         if (Objects.equals(user.getRealNameVerifyStatus(), UserVerificationStatus.Success.getCode())) {
@@ -287,6 +295,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                         .idCardCipher(idCardCipher)
                         .verifyBatchId(bachId)
                         .verifyResult(VerificationResult.Success.getCode())
+                        .verifyRemark(JsonUtil.toJsonString(realNameAuthResult))
                         .build());
 
                 userVerificationService.createUserVerification(CreateUserVerificationForm.builder()
@@ -312,7 +321,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                     .verifyResult(VerificationResult.Failed.getCode())
                     .verifyRemark(JsonUtil.toJsonString(realNameAuthResult))
                     .build());
-            // TODO:记录认证失败错误次数
+            checkRealNameAuthLimit(userNo);
+
 
             throw new BaseException(ErrorCodeEnum.real_name_auth_inconsistent,
                     ErrorCodeEnum.real_name_auth_inconsistent.getMessage());
@@ -328,12 +338,33 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 .build());
 
         if (realNameAuthResult.getCode().equals("401")) {
+            checkRealNameAuthLimit(userNo);
+
             throw new BaseException(ErrorCodeEnum.real_name_auth_param_illegal,
                     ErrorCodeEnum.real_name_auth_param_illegal.getMessage());
         }
 
         throw new BaseException(ErrorCodeEnum.real_name_auth_unknown_err,
                 ErrorCodeEnum.real_name_auth_unknown_err.getMessage());
+    }
+
+    private void checkRealNameAuthLimit(String userNo) {
+        Boolean existErrTimes = redisTemplate.hasKey(CommonKey.real_name_auth_err_times + userNo);
+        if (!existErrTimes) {
+            redisTemplate.opsForValue().set(CommonKey.real_name_auth_err_times + userNo, 1,
+                    MdStringUtils.getRemainSecondsOneDay(),
+                    TimeUnit.SECONDS);
+        } else {
+            Long errTimes = redisTemplate.opsForValue().increment(CommonKey.real_name_auth_err_times + userNo);
+            if (errTimes.intValue() >= realNameAuthErrTimesThreshold) {
+                // 超过认证失败次数,加入黑名单，并且设置黑名单时间
+                redisTemplate.opsForValue().setIfAbsent(CommonKey.real_name_auth_blacklist + userNo, 1,
+                        MdStringUtils.getRemainSecondsOneDay(),
+                        TimeUnit.SECONDS);
+                throw new BaseException(ErrorCodeEnum.real_name_auth_exceed_limit,
+                        ErrorCodeEnum.real_name_auth_exceed_limit.getMessage());
+            }
+        }
     }
 
 }
