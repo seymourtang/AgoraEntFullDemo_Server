@@ -9,8 +9,8 @@ import javax.validation.constraints.Pattern;
 @Data
 public class UserRealNameAuthForm {
 
-    @Length(min = 2, max = 6, message = "userName length must be between 2 and 6")
-    @Pattern(regexp = "^[\\u4e00-\\u9fa5]{2,6}$", message = "userName format is incorrect")
+    @Length(min = 2, max = 15, message = "userName length must be between 2 and 15")
+    @Pattern(regexp = "^[\\u4e00-\\u9fa5]{2,15}$", message = "userName format is incorrect")
     @NotBlank(message = "userName cannot be empty")
     private String realName;
 
