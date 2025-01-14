@@ -152,6 +152,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 users.setName(UserRandomInfo.getName());
                 users.setHeadUrl(UserRandomInfo.headImage());
                 users.setStatus(0);
+                users.setRealNameVerifyStatus(0);
                 baseMapper.insert(users);
             }
             BeanUtil.copyProperties(users, userInfo);
@@ -322,7 +323,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                     .verifyRemark(JsonUtil.toJsonString(realNameAuthResult))
                     .build());
             checkRealNameAuthLimit(userNo);
-
 
             throw new BaseException(ErrorCodeEnum.real_name_auth_inconsistent,
                     ErrorCodeEnum.real_name_auth_inconsistent.getMessage());
