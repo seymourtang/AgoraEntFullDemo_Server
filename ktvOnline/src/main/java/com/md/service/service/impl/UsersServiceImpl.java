@@ -72,6 +72,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Value("${realNameAuth.encryptionKey}")
     private String encryptionKey;
 
+    @Value("${realNameAuth.superRealName}")
+    private String superRealName;
+
+    @Value("${realNameAuth.superIdCard}")
+    private String superIdCard;
+
     @Resource
     private JwtUtil jwtUtil;
 
@@ -287,6 +293,34 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         String realNameCipher = Utils.aesEncrypt(realName, encryptionKey);
         String idCardCipher = Utils.aesEncrypt(idCard, encryptionKey);
 
+        // 检查是否使用超级验证信息
+        if (StringUtils.isNotEmpty(superRealName) && StringUtils.isNotEmpty(superIdCard)
+                && realName.equals(superRealName) && idCard.equals(superIdCard)) {
+            // 使用超级验证信息，直接通过验证
+            userVerificationLogService.createUserVerificationLog(CreateUserVerificationLogForm.builder()
+                    .userNo(userNo)
+                    .realNameCipher(realNameCipher)
+                    .idCardCipher(idCardCipher)
+                    .verifyBatchId(bachId)
+                    .verifyResult(VerificationResult.Success.getCode())
+                    .verifyRemark("Super verification passed")
+                    .build());
+
+            userVerificationService.createUserVerification(CreateUserVerificationForm.builder()
+                    .userNo(userNo)
+                    .verifyBatchId(bachId)
+                    .verifyStatus(UserVerificationStatus.Success.getCode())
+                    .realNameCipher(realNameCipher)
+                    .idCardCipher(idCardCipher)
+                    .verifySuccessAt(LocalDateTime.now())
+                    .build());
+
+            user.setRealNameVerifyStatus(UserVerificationStatus.Success.getCode());
+            baseMapper.updateById(user);
+            return;
+        }
+
+        // 原有的实名认证逻辑
         RealNameAuthDTO realNameAuthResult = realNameAuthService.auth(realName, idCard);
         if (realNameAuthResult.getCode().equals("200")) {
             if (realNameAuthResult.getResult().equals("1")) {

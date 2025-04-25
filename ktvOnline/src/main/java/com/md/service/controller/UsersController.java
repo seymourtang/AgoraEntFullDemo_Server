@@ -92,7 +92,8 @@ public class UsersController extends BaseController {
 
     @GetMapping("/getToken")
     @ApiOperation("获取token")
-    public BaseResult<?> getToken(@RequestHeader("userNo") String userNo, Integer userId, String roomNo) throws Exception {
+    public BaseResult<?> getToken(@RequestHeader("userNo") String userNo, Integer userId, String roomNo)
+            throws Exception {
         JSONObject result = new JSONObject();
         if (StringUtils.isEmpty(roomNo)) {
             roomNo = "";
@@ -107,7 +108,8 @@ public class UsersController extends BaseController {
 
     @PostMapping("/realNameAuth")
     @ApiOperation("实名认证")
-    public BaseResult<?> realNameAuth(@RequestHeader("userNo") String userNo, @Validated @RequestBody UserRealNameAuthForm form) throws Exception {
+    public BaseResult<?> realNameAuth(@RequestHeader("userNo") String userNo,
+            @Validated @RequestBody UserRealNameAuthForm form) throws Exception {
         log.info("realNameAuth userNo:{},form:{}", userNo, form);
         usersService.realNameAuth(userNo, form.getRealName(), form.getIdCard());
 
