@@ -1,5 +1,7 @@
 package com.md.service.model;
 
+import java.util.UUID;
+
 import com.md.service.common.ErrorCodeEnum;
 import lombok.Data;
 
@@ -10,7 +12,9 @@ public class BaseResult<T> {
 
     private String message = "success";
 
-    private String requestId;
+    private Long ts = System.currentTimeMillis();
+
+    private String requestId = UUID.randomUUID().toString();
 
     private T data;
 

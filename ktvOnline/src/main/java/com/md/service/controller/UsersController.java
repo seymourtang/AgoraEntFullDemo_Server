@@ -7,12 +7,14 @@ import com.md.service.model.BaseResult;
 import com.md.service.model.dto.UserInfo;
 import com.md.service.model.entity.Users;
 import com.md.service.model.form.UpdateUserInfoForm;
+import com.md.service.model.form.UserRealNameAuthForm;
 import com.md.service.service.UsersService;
 import com.md.service.utils.RtmTokenBuilderSample;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -90,7 +92,8 @@ public class UsersController extends BaseController {
 
     @GetMapping("/getToken")
     @ApiOperation("获取token")
-    public BaseResult<?> getToken(@RequestHeader("userNo") String userNo, Integer userId, String roomNo) throws Exception {
+    public BaseResult<?> getToken(@RequestHeader("userNo") String userNo, Integer userId, String roomNo)
+            throws Exception {
         JSONObject result = new JSONObject();
         if (StringUtils.isEmpty(roomNo)) {
             roomNo = "";
@@ -101,5 +104,15 @@ public class UsersController extends BaseController {
         result.put("rtcToken", rtcToken);
         log.info("getUserInfo userNo:{},result :{}", userNo, result);
         return BaseResult.success(result);
+    }
+
+    @PostMapping("/realNameAuth")
+    @ApiOperation("实名认证")
+    public BaseResult<?> realNameAuth(@RequestHeader("userNo") String userNo,
+            @Validated @RequestBody UserRealNameAuthForm form) throws Exception {
+        log.info("realNameAuth userNo:{},form:{}", userNo, form);
+        usersService.realNameAuth(userNo, form.getRealName(), form.getIdCard());
+
+        return BaseResult.success();
     }
 }

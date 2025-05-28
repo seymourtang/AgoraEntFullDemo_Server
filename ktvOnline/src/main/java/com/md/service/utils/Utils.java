@@ -2,10 +2,12 @@ package com.md.service.utils;
 
 import org.apache.commons.codec.binary.Base64;
 
+import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -25,6 +27,25 @@ public class Utils {
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(keySpec);
         return mac.doFinal(msg);
+    }
+
+    // AES加密
+    public static String aesEncrypt(String plainText, String key) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+        byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+        return new String(Base64.encodeBase64(encryptedBytes), StandardCharsets.UTF_8);
+    }
+
+    // AES解密
+    public static String aesDecrypt(String encryptedText, String key) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+        byte[] decodedBytes = Base64.decodeBase64(encryptedText);
+        byte[] decryptedBytes = cipher.doFinal(decodedBytes);
+        return new String(decryptedBytes, StandardCharsets.UTF_8);
     }
 
     public static byte[] pack(PackableEx packableEx) {
@@ -56,11 +77,11 @@ public class Utils {
     public static int crc32(byte[] bytes) {
         CRC32 checksum = new CRC32();
         checksum.update(bytes);
-        return (int)checksum.getValue();
+        return (int) checksum.getValue();
     }
 
     public static int getTimestamp() {
-        return (int)((new Date().getTime())/1000);
+        return (int) ((new Date().getTime()) / 1000);
     }
 
     public static int randomInt() {
